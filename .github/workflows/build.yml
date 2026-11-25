@@ -1,0 +1,36 @@
+# Builds the starter and the finished OS, then boots them in QEMU, on Linux (same steps as
+# Windows with WSL) and on macOS (same steps as the Mac guide). If this is green, the guides work.
+name: Build and boot
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linux-wsl:
+    name: Ubuntu (same as Windows + WSL)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the tools (the command from the Windows guide)
+        run: sudo apt-get update && sudo apt-get install -y clang lld make git qemu-system-x86 qemu-system-gui
+      - run: make -C starter
+      - run: make -C os
+      - run: tools/boot-test.sh starter
+      - run: tools/boot-test.sh os
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kernel
+          path: os/build/kernel.elf
+
+  macos:
+    name: macOS (same as the Mac guide)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the tools (the command from the Mac guide)
+        run: brew install llvm lld qemu
+      - run: make -C starter
+      - run: make -C os
+      - run: tools/boot-test.sh starter
+      - run: tools/boot-test.sh os
