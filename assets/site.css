@@ -80,6 +80,7 @@ body[data-os="mac"] .only-win, body[data-os="win"] .only-mac { display: none !im
 
 /* code */
 .code { position: relative; margin: .8rem 0 1.1rem; }
+.code pre { padding-right: 5.2rem !important; }
 .code pre, pre.screen { margin: 0; background: var(--code-bg); color: var(--code-ink); border: 2px solid var(--line); border-radius: 16px; padding: 1rem 1.1rem; overflow-x: auto; font: 14px/1.55 var(--mono); }
 .code .label { position: absolute; top: -.75rem; left: 1rem; background: var(--card); border: 2px solid var(--line); border-radius: 999px; padding: 0 .6rem; font: 600 .75rem var(--mono); color: var(--ink); }
 .copy { position: absolute; top: .55rem; right: .55rem; border: 1.5px solid #8b93b8; background: #232a45; color: #fff; border-radius: 999px; padding: .15rem .7rem; font: 600 .78rem var(--sans); cursor: pointer; }
