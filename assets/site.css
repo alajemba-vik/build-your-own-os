@@ -27,7 +27,7 @@ a:hover { text-decoration-thickness: 2px; }
 .brand { font-weight: 800; text-decoration: none; color: var(--ink); display: flex; align-items: center; gap: .55rem; }
 .brand .chip-os { background: var(--navy); color: var(--bg); border-radius: 8px; padding: 0 .45rem; font-family: var(--mono); font-size: .8rem; }
 .top .spacer { flex: 1; }
-.menu-btn { display: none; }
+.top .menu-btn { display: none; }
 .wrap { display: grid; grid-template-columns: 270px minmax(0, 1fr); max-width: 1200px; margin: 0 auto; }
 nav.side { position: sticky; top: 62px; align-self: start; max-height: calc(100vh - 62px); overflow: auto; padding: 1.4rem 1rem 2rem 1.4rem; }
 nav.side h2 { font: 400 1.25rem var(--hand); margin: 1rem 0 .2rem; color: var(--muted); }
@@ -107,7 +107,7 @@ footer { border-top: 2px solid var(--line); padding: 1.4rem; text-align: center;
 
 @media (max-width: 860px) {
   .wrap { display: block; }
-  .menu-btn { display: inline-flex; }
+  .top .menu-btn { display: inline-flex; }
   nav.side { display: none; position: static; max-height: none; border-bottom: 2px solid var(--line); background: var(--card); }
   body.menu-open nav.side { display: block; }
   main { padding: 1.4rem 1.1rem 3rem; }
