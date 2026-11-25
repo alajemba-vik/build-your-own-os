@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=20261125b">
+<link rel="stylesheet" href="assets/site.css?v=20261125c">
 </head>
 <body data-page="setup-windows">
 <a class="skip" href="#main">Skip to the content</a>
@@ -50,7 +50,7 @@ make run</pre></div>
 git config --global user.email &quot;you@example.com&quot;</pre></div></li>
 <li><h3>Open it with your AI</h3><p><b>VS Code</b>: install it on Windows with the <b>WSL</b> extension, then in Ubuntu, in <code>my-os</code>, run <code>code .</code>. Cursor works the same way. Terminal AIs (Claude Code, Codex, Gemini CLI) install and run <b>inside Ubuntu</b>, in the <code>my-os</code> folder.</p>
 <div class="code"><pre>code .        # VS Code (with Copilot) through WSL
-claude        # Claude Code, in the my-os folder</pre></div><p>Using a chat AI instead? Open <code>my-os/AGENTS.md</code> (in VS Code, or with <code>cat AGENTS.md</code>), copy all of it and paste it as your first message.</p></li>
+claude        # Claude Code, in the my-os folder</pre></div><p>Using a chat AI instead? Open <code>my-os/AGENTS.md</code> (in VS Code, with <code>cat AGENTS.md</code>, or <a href="https://github.com/alajemba-vik/build-your-own-os/blob/main/starter/AGENTS.md">on GitHub</a>), copy all of it and paste it as your first message.</p></li>
 </ol>
 <div class="note"><p><b>"Please enable the Virtual Machine Platform" or error 0x80370102</b>: virtualization is off. Turn on <b>Virtualization</b> (Intel VT-x / AMD-V / SVM) in your PC's BIOS settings, then run <code>wsl --install</code> again.</p>
 <p><b>wsl --install only shows help text</b>: WSL is already there. Run <code>wsl --install -d Ubuntu</code>, then <code>wsl --update</code>.</p>
@@ -62,6 +62,6 @@ claude        # Claude Code, in the my-os folder</pre></div><p>Using a chat AI i
 </div>
 <footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session ·
 <a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
-<script src="assets/site.js?v=20261125b"></script>
+<script src="assets/site.js?v=20261125c"></script>
 </body>
 </html>
