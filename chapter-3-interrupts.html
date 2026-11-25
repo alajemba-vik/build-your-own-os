@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 3: Interrupts and crashes · Build your own OS</title>
+<meta name="description" content="The GDT, the IDT, interrupt stubs in assembly and a kernel panic screen.">
+<meta property="og:title" content="Chapter 3: Interrupts and crashes · Build your own OS">
+<meta property="og:description" content="The GDT, the IDT, interrupt stubs in assembly and a kernel panic screen.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="assets/site.css?v=20261125a">
+</head>
+<body data-page="ch3">
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapters</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Build your own OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <div class="os-switch" role="group" aria-label="My computer">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapters"><h2>Start</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Welcome<span class="tick"></span></a></li></ol><h2>Set up</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>On a Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>On Windows<span class="tick"></span></a></li></ol><h2>Build it</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Boot and say hello<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>A real console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3" aria-current="page"><span class="num">3</span>Interrupts and crashes<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Timer and keyboard<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>A shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>Memory<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>A desktop with windows<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>Make it yours and share it<span class="tick"></span></a></li></ol><h2>Help</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Stuck? Glossary<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Chapter 3 · about 40 minutes</p>
+<h1>Interrupts <b>and crashes</b></h1>
+<p class="lede">Right now, if your code does something wrong, the PC silently restarts. You teach the CPU where to go when something happens, and you get a proper red <b>kernel panic</b> screen that says what went wrong.</p>
+
+<h2>The <b>idea</b></h2>
+<ul>
+<li>An <b>interrupt</b> makes the CPU drop what it's doing and run a handler, then come back. Some come from the CPU itself when code goes wrong (<b>exceptions</b>: division by zero, invalid instruction, page fault… numbers 0 to 31). Others come from hardware like the keyboard (chapter 4).</li>
+<li>The <b>IDT</b> (Interrupt Descriptor Table) is a list of 256 handler addresses. We load it with the <code>lidt</code> instruction.</li>
+<li>Before that, the CPU wants a <b>GDT</b> (Global Descriptor Table): old x86 chips cut memory into segments. We make two segments that both cover all 4 GiB (code at <code>0x08</code>, data at <code>0x10</code>), and then never think about them again.</li>
+<li>Handlers start in assembly (<b>stubs</b>): they save every register, call one C function with a pointer to them, then restore everything and run <code>iret</code>. Some exceptions push an error code and some don't; the stubs push a fake 0 so every interrupt looks the same.</li>
+<li>If a crash happens while handling a crash, the CPU gives up: a <b>triple fault</b>. QEMU stops (we use <code>-no-reboot</code>).</li>
+</ul>
+
+<h2>Do <b>it</b></h2>
+<ol class="steps">
+<li><h3>GDT, IDT and the panic screen</h3><div class="prompt"><p>Chapter 3. Add a flat GDT with three entries (null, kernel code 0x08, kernel data 0x10, both covering 4 GiB) in src/gdt.c, loaded by an assembly function gdt_flush in src/cpu.S that reloads all segment registers and does a far jump to reload CS.</p><p>Then an IDT in src/idt.c with 48 entries pointing to assembly stubs isr0..isr47 in cpu.S. Each stub pushes a fake error code 0 when the CPU doesn&#x27;t push one (the CPU pushes one for 8, 10-14, 17, 21, 29, 30), pushes its number, and jumps to a common stub that saves all registers (pushal and the segment registers), loads the kernel data segment, and calls isr_handler(struct regs *r) in C. Put a table of the 48 stub addresses in cpu.S. Define struct regs in src/cpu.h in the exact order things are on the stack.</p><p>Also remap the PIC so hardware IRQs 0-15 use interrupts 32-47, but keep them all masked for now.</p><p>For exceptions 0-31, show a red KERNEL PANIC screen with the exception&#x27;s name, the error code, eip and the registers, then stop the CPU forever. In kernel_main, print &quot;[ OK ]&quot; lines after each step.</p></div>
+<div class="code"><pre>make run</pre></div></li>
+<li><h3>Crash it on purpose</h3><div class="prompt"><p>Add a temporary test at the end of kernel_main that runs the ud2 instruction (inline assembly), so I can see the panic screen. Explain what &quot;Invalid opcode&quot; means.</p></div><p>You should see the red screen with <b>Invalid opcode</b>. Then try a division by zero (ask the AI how to make one the compiler doesn't remove), then delete the test.</p></li>
+<li><h3>Understand it</h3><p>Ask your AI: What exactly does the CPU push on the stack when an interrupt happens? Why must <code>struct regs</code> match the stub's pushes exactly? What is <code>iret</code>? Why does the PIC need to be remapped?</p></li>
+</ol>
+
+<h2>It works <b>when</b></h2>
+<ul class="checks"><li>The boot shows <code>[ OK ] GDT</code> and <code>[ OK ] IDT</code>.</li><li><code>ud2</code> gives a red panic screen with "Invalid opcode" and QEMU stays open.</li></ul>
+<div class="note"><p><b>QEMU closes as soon as it starts</b>: a triple fault. Run this and paste the end of it to your AI, it shows the last interrupts and why the CPU reset:</p>
+<div class="code"><pre>qemu-system-i386 -kernel build/kernel.elf -no-reboot -d int,cpu_reset 2&gt;&amp;1 | tail -40</pre></div>
+<p>The usual causes: a stub with the wrong error-code setting, <code>struct regs</code> in the wrong order, a missing <code>__attribute__((packed))</code> on the table structs, or the far jump in <code>gdt_flush</code>.</p></div>
+<details class="ref" data-files="os/src/cpu.S os/src/cpu.h os/src/gdt.c os/src/idt.c os/src/panic.c"><summary>Peek at the reference solution (open it only when you are stuck)</summary><p>This is the code from the finished OS in <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Yours does not have to look the same: if it works and you understand it, it is right.</p></details>
+<h2>Save <b>your progress</b></h2>
+<p>Save a snapshot with Git, so you can always go back if a later step breaks something:</p>
+<div class="code"><pre>git add -A &amp;&amp; git commit -m &quot;Chapter 3: GDT, IDT and kernel panic screen&quot;</pre></div>
+
+<label class="done"><input type="checkbox"> I finished this part</label>
+<nav class="pager" aria-label="Previous and next"><a class="btn" href="chapter-2-console.html">← A real console</a><a class="btn btn-primary" href="chapter-4-keyboard.html">Timer and keyboard →</a></nav>
+</main>
+</div>
+<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session ·
+<a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
+<script src="assets/site.js?v=20261125a"></script>
+</body>
+</html>

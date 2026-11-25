@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set up a Mac · Build your own OS</title>
+<meta name="description" content="Install clang, lld and QEMU on macOS with Homebrew, and boot the starter OS.">
+<meta property="og:title" content="Set up a Mac · Build your own OS">
+<meta property="og:description" content="Install clang, lld and QEMU on macOS with Homebrew, and boot the starter OS.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="assets/site.css?v=20261125a">
+</head>
+<body data-page="setup-mac">
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapters</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Build your own OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <div class="os-switch" role="group" aria-label="My computer">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapters"><h2>Start</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Welcome<span class="tick"></span></a></li></ol><h2>Set up</h2><ol><li><a href="setup-mac.html" data-page="setup-mac" aria-current="page"><span class="num"></span>On a Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>On Windows<span class="tick"></span></a></li></ol><h2>Build it</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Boot and say hello<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>A real console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interrupts and crashes<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Timer and keyboard<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>A shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>Memory<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>A desktop with windows<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>Make it yours and share it<span class="tick"></span></a></li></ol><h2>Help</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Stuck? Glossary<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Set up · about 15 minutes</p>
+<h1>Set up <b>your Mac</b></h1>
+<p class="lede">You need three things: the Apple developer tools (Git and make), a compiler that can build for a PC (LLVM's clang and lld), and QEMU to run your OS. Intel and Apple Silicon Macs both work.</p>
+<ol class="steps">
+<li><h3>Open Terminal</h3><p>Press <kbd>⌘</kbd> <kbd>Space</kbd>, type <b>Terminal</b>, press <kbd>Return</kbd>. Paste each command below and press <kbd>Return</kbd>.</p></li>
+<li><h3>Install the Apple developer tools</h3><div class="code"><pre>xcode-select --install</pre></div><p>A window opens: click <b>Install</b>. If it says they are already installed, that's fine: go on.</p></li>
+<li><h3>Install Homebrew</h3><p>Homebrew installs developer tools with one command. Skip this if <code>brew --version</code> already works.</p>
+<div class="code"><pre>/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;</pre></div>
+<p>It asks for your Mac password (nothing shows while you type: that's normal). <b>At the end it prints "Next steps" with two or three commands: run them</b>, then close Terminal and open it again.</p></li>
+<li><h3>Install the compiler and QEMU</h3><div class="code"><pre>brew install llvm lld qemu</pre></div><p>This takes 5 to 10 minutes. <b>llvm</b> gives you <code>clang</code>, the C compiler, <b>lld</b> the linker that puts the pieces together, and <b>qemu</b> the emulated PC.</p></li>
+<li><h3>Check it worked</h3><div class="code"><pre>&quot;$(brew --prefix llvm)/bin/clang&quot; --version
+ls &quot;$(brew --prefix lld)/bin/ld.lld&quot;
+qemu-system-i386 --version</pre></div><p>Each line should print a version or a path, not "command not found" or "No such file".</p></li>
+<li><h3>Get the starter and run it</h3><div class="code"><pre>cd ~
+git clone https://github.com/alajemba-vik/build-your-own-os.git
+cp -R build-your-own-os/starter my-os
+cd my-os
+git init &amp;&amp; git add -A &amp;&amp; git commit -m &quot;Start from the starter&quot;
+make run</pre></div>
+<p>A QEMU window opens with <b>"Hello from my own operating system!"</b>. That is your OS. To stop it, close the window or press <kbd>Ctrl</kbd> <kbd>C</kbd> in Terminal.</p>
+<p>The first time, Git may ask who you are. Run these with your own name and email, then the commit again:</p>
+<div class="code"><pre>git config --global user.name &quot;Your Name&quot;
+git config --global user.email &quot;you@example.com&quot;</pre></div></li>
+<li><h3>Open it with your AI</h3><p>Open the <code>my-os</code> folder in your editor or AI tool. For example:</p>
+<div class="code"><pre>code .        # VS Code (with Copilot), or: cursor .
+claude        # Claude Code, in the my-os folder
+codex         # Codex CLI, in the my-os folder</pre></div><p>Using a chat AI instead? Open <code>my-os/AGENTS.md</code>, copy all of it and paste it as your first message.</p></li>
+</ol>
+<div class="note"><p><b>"command not found: brew"</b>: you missed the "Next steps" lines at the end of the Homebrew install. Run <code>eval "$(/opt/homebrew/bin/brew shellenv)"</code> (Apple Silicon) or <code>eval "$(/usr/local/bin/brew shellenv)"</code> (Intel), and add that line to <code>~/.zprofile</code>.</p>
+<p><b>The QEMU window doesn't show up</b>: look for it behind Terminal or in the Dock. Or run <code>make run-text</code> to see the screen inside Terminal (quit with <kbd>Esc</kbd> then <kbd>2</kbd>, type <code>quit</code>, <kbd>Return</kbd>).</p>
+<p>More fixes on the <a href="help.html">help page</a>.</p></div>
+
+<label class="done"><input type="checkbox"> I finished this part</label>
+<nav class="pager" aria-label="Previous and next"><a class="btn" href="index.html">← Welcome</a><a class="btn btn-primary" href="setup-windows.html">On Windows →</a></nav>
+</main>
+</div>
+<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session ·
+<a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
+<script src="assets/site.js?v=20261125a"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 5: A shell · Build your own OS</title>
+<meta name="description" content="A command shell with a command table, reboot and shutdown.">
+<meta property="og:title" content="Chapter 5: A shell · Build your own OS">
+<meta property="og:description" content="A command shell with a command table, reboot and shutdown.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="assets/site.css?v=20261125a">
+</head>
+<body data-page="ch5">
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapters</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Build your own OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <div class="os-switch" role="group" aria-label="My computer">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapters"><h2>Start</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Welcome<span class="tick"></span></a></li></ol><h2>Set up</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>On a Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>On Windows<span class="tick"></span></a></li></ol><h2>Build it</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Boot and say hello<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>A real console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interrupts and crashes<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Timer and keyboard<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5" aria-current="page"><span class="num">5</span>A shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>Memory<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>A desktop with windows<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>Make it yours and share it<span class="tick"></span></a></li></ol><h2>Help</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Stuck? Glossary<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Chapter 5 · about 30 minutes</p>
+<h1>A <b>shell</b></h1>
+<p class="lede">The part people actually use: a prompt where you type commands and your OS answers. You have all the pieces; now you put them together.</p>
+
+<h2>The <b>idea</b></h2>
+<p>A shell is a loop: <b>show a prompt → read a line → split it into a command and its arguments → find the command → run it</b>. A table of <code>{name, help text, function}</code> makes adding commands easy: one line each.</p>
+<p>Turning the computer off or restarting it is hardware too: QEMU turns off when you write <code>0x2000</code> to port <code>0x604</code>, and every PC restarts when you send <code>0xFE</code> to the keyboard controller on port <code>0x64</code>.</p>
+
+<h2>Do <b>it</b></h2>
+<ol class="steps">
+<li><h3>The shell</h3><div class="prompt"><p>Chapter 5. Write src/shell.c and shell.h with shell_run(): show a coloured prompt with the OS name, read a line with input_getc (support Backspace, ignore other control keys, max 127 characters, echo what is typed), split the command from its arguments, and look it up in a table of commands {name, help text, function}.</p><p>Commands: help (lists all commands with their help text, aligned), clear, echo &lt;text&gt;, about (OS name, version, uptime), uptime (hh:mm:ss), color &lt;name&gt; (changes the text colour), reboot (keyboard controller, 0xFE on port 0x64), shutdown (outw(0x604, 0x2000) for QEMU, then halt) and crash (runs ud2 to show the panic screen). Unknown commands print a short message.</p><p>Put the OS name and version in src/os.h. kernel_main calls shell_run() after setting everything up.</p></div>
+<div class="code"><pre>make run</pre></div><p>Type <code>help</code>, then try every command.</p></li>
+<li><h3>Invent your own commands</h3><p>Pick one or two, and ask your AI for them one at a time:</p>
+<ul><li><b>calc 12 * 7</b>: a calculator for whole numbers.</li><li><b>Command history</b> with the up arrow.</li><li><b>guess</b>: guess-the-number, using the timer ticks as randomness.</li><li><b>banner hello</b>: big letters.</li><li><b>time</b>: the real date and time from the PC's clock chip (the CMOS RTC, ports <code>0x70</code>/<code>0x71</code>).</li></ul></li>
+</ol>
+<h2>It works <b>when</b></h2>
+<ul class="checks"><li><code>help</code> lists your commands and each one works.</li><li><code>shutdown</code> closes QEMU; <code>crash</code> shows the panic screen.</li><li>You added at least one command of your own.</li></ul>
+<details class="ref" data-files="os/src/shell.c os/src/os.h os/src/kernel.c"><summary>Peek at the reference solution (open it only when you are stuck)</summary><p>This is the code from the finished OS in <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Yours does not have to look the same: if it works and you understand it, it is right.</p></details>
+<h2>Save <b>your progress</b></h2>
+<p>Save a snapshot with Git, so you can always go back if a later step breaks something:</p>
+<div class="code"><pre>git add -A &amp;&amp; git commit -m &quot;Chapter 5: a shell with commands&quot;</pre></div>
+
+<label class="done"><input type="checkbox"> I finished this part</label>
+<nav class="pager" aria-label="Previous and next"><a class="btn" href="chapter-4-keyboard.html">← Timer and keyboard</a><a class="btn btn-primary" href="chapter-6-memory.html">Memory →</a></nav>
+</main>
+</div>
+<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session ·
+<a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
+<script src="assets/site.js?v=20261125a"></script>
+</body>
+</html>

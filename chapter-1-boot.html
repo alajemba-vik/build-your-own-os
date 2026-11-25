@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 1: Boot and say hello · Build your own OS</title>
+<meta name="description" content="How a PC boots, the multiboot header, and writing to the VGA screen.">
+<meta property="og:title" content="Chapter 1: Boot and say hello · Build your own OS">
+<meta property="og:description" content="How a PC boots, the multiboot header, and writing to the VGA screen.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="assets/site.css?v=20261125a">
+</head>
+<body data-page="ch1">
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapters</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Build your own OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <div class="os-switch" role="group" aria-label="My computer">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapters"><h2>Start</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Welcome<span class="tick"></span></a></li></ol><h2>Set up</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>On a Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>On Windows<span class="tick"></span></a></li></ol><h2>Build it</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1" aria-current="page"><span class="num">1</span>Boot and say hello<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>A real console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interrupts and crashes<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Timer and keyboard<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>A shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>Memory<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>A desktop with windows<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>Make it yours and share it<span class="tick"></span></a></li></ol><h2>Help</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Stuck? Glossary<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Chapter 1 · about 20 minutes</p>
+<h1>Boot and <b>say hello</b></h1>
+<p class="lede">Your starter already boots. In this chapter you find out exactly how, line by line, with your AI, and you make the first screen your own.</p>
+
+<h2>The <b>idea</b></h2>
+<p>A PC starts its firmware (the BIOS), which loads a <b>bootloader</b>. Our bootloader is built into QEMU: <code>qemu-system-i386 -kernel build/kernel.elf</code>. It follows a standard called <b>Multiboot</b>: it looks for a magic number, <code>0x1BADB002</code>, at the start of our file, loads the kernel at 1 MiB in memory and jumps into it, with the CPU already in 32-bit mode.</p>
+<p>From there, it's all ours:</p>
+<ul>
+<li><code>src/boot.S</code> (assembly) holds the magic number, sets up a <b>stack</b> (memory C needs for its variables) and calls <code>kernel_main</code>.</li>
+<li><code>linker.ld</code> says where each piece of the kernel goes in memory.</li>
+<li><code>src/kernel.c</code> writes to the screen. In text mode the screen <i>is</i> memory: 80 × 25 cells starting at address <code>0xB8000</code>, 2 bytes each (the character, then its colour). Write there, and letters appear.</li>
+<li><code>Makefile</code> builds it with <code>--target=i686-elf -ffreestanding</code>: code for a bare 32-bit PC, with no operating system and no C library under it. We <i>are</i> the operating system.</li>
+</ul>
+
+<h2>Do <b>it</b></h2>
+<ol class="steps">
+<li><h3>Run it</h3><div class="code"><pre>make run</pre></div><p>You see the hello message. Close QEMU.</p></li>
+<li><h3>Let your AI explain it</h3><div class="prompt"><p>Read AGENTS.md and every file in this project. Explain in simple words what happens from the moment QEMU starts until &quot;Hello&quot; appears on the screen. Go file by file: Makefile, linker.ld, src/boot.S, src/kernel.c. For boot.S, explain each line.</p></div>
+<p>Then ask about anything you don't get. Good questions:</p>
+<ul><li>Why does the stack start at the top and grow down?</li><li>What would happen if <code>kernel_main</code> returned?</li><li>What is in the colour byte <code>0x0B</code>?</li><li>Why can't I use <code>printf</code> here?</li></ul></li>
+<li><h3>Make it yours</h3><div class="prompt"><p>Change the first screen: show my name instead of &quot;my own operating system&quot;, draw a border around the whole screen with the box-drawing characters of the VGA font (code page 437), and use at least three colours. Explain how the colour byte works (text colour, background colour). Keep everything in kernel.c.</p></div>
+<div class="code"><pre>make run</pre></div></li>
+<li><h3>Break it on purpose</h3><p>In <code>boot.S</code>, change <code>0x1BADB002</code> to another number and run <code>make run</code>. QEMU refuses to start it: no magic number, no boot. Put it back.</p></li>
+</ol>
+
+<h2>It works <b>when</b></h2>
+<ul class="checks"><li>QEMU shows your name, a border and several colours.</li><li>You can say what <code>boot.S</code>, <code>linker.ld</code> and <code>0xB8000</code> are for.</li></ul>
+<details class="ref" data-files="starter/src/boot.S starter/linker.ld starter/src/kernel.c starter/Makefile"><summary>The starter files (open it only when you are stuck)</summary><p>This is the code from the finished OS in <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Yours does not have to look the same: if it works and you understand it, it is right.</p></details>
+<h2>Save <b>your progress</b></h2>
+<p>Save a snapshot with Git, so you can always go back if a later step breaks something:</p>
+<div class="code"><pre>git add -A &amp;&amp; git commit -m &quot;Chapter 1: my own first screen&quot;</pre></div>
+
+<label class="done"><input type="checkbox"> I finished this part</label>
+<nav class="pager" aria-label="Previous and next"><a class="btn" href="setup-windows.html">← On Windows</a><a class="btn btn-primary" href="chapter-2-console.html">A real console →</a></nav>
+</main>
+</div>
+<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session ·
+<a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
+<script src="assets/site.js?v=20261125a"></script>
+</body>
+</html>

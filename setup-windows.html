@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set up Windows · Build your own OS</title>
+<meta name="description" content="Install WSL, Ubuntu, clang, lld and QEMU on Windows, and boot the starter OS.">
+<meta property="og:title" content="Set up Windows · Build your own OS">
+<meta property="og:description" content="Install WSL, Ubuntu, clang, lld and QEMU on Windows, and boot the starter OS.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="assets/site.css?v=20261125a">
+</head>
+<body data-page="setup-windows">
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapters</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Build your own OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <div class="os-switch" role="group" aria-label="My computer">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapters"><h2>Start</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Welcome<span class="tick"></span></a></li></ol><h2>Set up</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>On a Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows" aria-current="page"><span class="num"></span>On Windows<span class="tick"></span></a></li></ol><h2>Build it</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Boot and say hello<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>A real console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interrupts and crashes<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Timer and keyboard<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>A shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>Memory<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>A desktop with windows<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>Make it yours and share it<span class="tick"></span></a></li></ol><h2>Help</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Stuck? Glossary<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Set up · about 20 minutes</p>
+<h1>Set up <b>your Windows PC</b></h1>
+<p class="lede">OS tools are easiest on Linux, and Windows can run Linux inside it with <b>WSL</b> (Windows Subsystem for Linux). You install Ubuntu once, then everything happens in its terminal. Windows 11 is best; Windows 10 works too.</p>
+<ol class="steps">
+<li><h3>Install WSL and Ubuntu</h3><p>Open the Start menu, type <b>PowerShell</b>, right-click it and choose <b>Run as administrator</b>. Then:</p><div class="code"><pre>wsl --install</pre></div><p><b>Restart your PC</b> when it asks. Ubuntu opens by itself after the restart (or open <b>Ubuntu</b> from the Start menu). Choose a username and a password for Linux. Nothing shows while you type the password: that's normal. Remember it, you'll need it for <code>sudo</code>.</p></li>
+<li><h3>Install the compiler and QEMU</h3><p>In the <b>Ubuntu</b> window (not PowerShell):</p><div class="code"><pre>sudo apt update &amp;&amp; sudo apt install -y clang lld make git qemu-system-x86 qemu-system-gui</pre></div><p><b>clang</b> is the C compiler, <b>lld</b> the linker that puts the pieces together, <b>qemu</b> the emulated PC. This is the exact command our automatic test uses, so it works.</p></li>
+<li><h3>Check it worked</h3><div class="code"><pre>clang --version
+ld.lld --version
+qemu-system-i386 --version</pre></div></li>
+<li><h3>Get the starter and run it</h3><p>Stay in your Linux home folder (<code>cd ~</code>). Don't work in <code>/mnt/c/…</code>: it is much slower there.</p><div class="code"><pre>cd ~
+git clone https://github.com/alajemba-vik/build-your-own-os.git
+cp -R build-your-own-os/starter my-os
+cd my-os
+git init &amp;&amp; git add -A &amp;&amp; git commit -m &quot;Start from the starter&quot;
+make run</pre></div>
+<p>On Windows 11 a QEMU window opens with <b>"Hello from my own operating system!"</b>. That is your OS. To stop it, close the window or press <kbd>Ctrl</kbd> <kbd>C</kbd> in Ubuntu.</p>
+<p><b>No window (Windows 10)?</b> Run <code>make run-text</code>: the screen of your OS shows inside the Ubuntu window. Quit with <kbd>Esc</kbd> then <kbd>2</kbd>, type <code>quit</code>, <kbd>Enter</kbd>.</p>
+<p>The first time, Git may ask who you are. Run these with your own name and email, then the commit again:</p>
+<div class="code"><pre>git config --global user.name &quot;Your Name&quot;
+git config --global user.email &quot;you@example.com&quot;</pre></div></li>
+<li><h3>Open it with your AI</h3><p><b>VS Code</b>: install it on Windows with the <b>WSL</b> extension, then in Ubuntu, in <code>my-os</code>, run <code>code .</code>. Cursor works the same way. Terminal AIs (Claude Code, Codex, Gemini CLI) install and run <b>inside Ubuntu</b>, in the <code>my-os</code> folder.</p>
+<div class="code"><pre>code .        # VS Code (with Copilot) through WSL
+claude        # Claude Code, in the my-os folder</pre></div><p>Using a chat AI instead? Open <code>my-os/AGENTS.md</code> (in VS Code, or with <code>cat AGENTS.md</code>), copy all of it and paste it as your first message.</p></li>
+</ol>
+<div class="note"><p><b>"Please enable the Virtual Machine Platform" or error 0x80370102</b>: virtualization is off. Turn on <b>Virtualization</b> (Intel VT-x / AMD-V / SVM) in your PC's BIOS settings, then run <code>wsl --install</code> again.</p>
+<p><b>wsl --install only shows help text</b>: WSL is already there. Run <code>wsl --install -d Ubuntu</code>, then <code>wsl --update</code>.</p>
+<p>More fixes on the <a href="help.html">help page</a>.</p></div>
+
+<label class="done"><input type="checkbox"> I finished this part</label>
+<nav class="pager" aria-label="Previous and next"><a class="btn" href="setup-mac.html">← On a Mac</a><a class="btn btn-primary" href="chapter-1-boot.html">Boot and say hello →</a></nav>
+</main>
+</div>
+<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session ·
+<a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
+<script src="assets/site.js?v=20261125a"></script>
+</body>
+</html>
