@@ -7,18 +7,21 @@
 <meta name="description" content="IRQs, the PIC, the PIT timer and a PS/2 keyboard driver.">
 <meta property="og:title" content="Chapter 4: Timer and keyboard · Build your own OS">
 <meta property="og:description" content="IRQs, the PIC, the PIT timer and a PS/2 keyboard driver.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/chapter-4-keyboard.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/chapter-4-keyboard.html">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=20261125c">
+<link rel="stylesheet" href="assets/site.css?v=20261126a">
 </head>
-<body data-page="ch4">
+<body data-page="ch4" data-root="">
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top">
   <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapters</button>
   <a class="brand" href="index.html"><span class="chip-os">OS</span> Build your own OS <span class="long">· aivancity Tech Club</span></a>
   <span class="spacer"></span>
+  <a class="lang-switch" href="fr/chapter-4-keyboard.html" hreflang="fr" lang="fr" title="Lire en français" data-lang="fr">FR</a>
   <div class="os-switch" role="group" aria-label="My computer">
     <button type="button" data-os="mac" aria-pressed="false">macOS</button>
     <button type="button" data-os="win" aria-pressed="false">Windows</button>
@@ -28,42 +31,41 @@
 <nav class="side" id="side" aria-label="Chapters"><h2>Start</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Welcome<span class="tick"></span></a></li></ol><h2>Set up</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>On a Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>On Windows<span class="tick"></span></a></li></ol><h2>Build it</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Boot and say hello<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>A real console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interrupts and crashes<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4" aria-current="page"><span class="num">4</span>Timer and keyboard<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>A shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>Memory<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>A desktop with windows<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>Make it yours and share it<span class="tick"></span></a></li></ol><h2>Help</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Stuck? Glossary<span class="tick"></span></a></li></ol></nav>
 <main id="main">
 
-<p class="eyebrow">Chapter 4 · about 40 minutes</p>
-<h1>Timer and <b>keyboard</b></h1>
-<p class="lede">Your first two <b>drivers</b>. The timer lets your OS count time; the keyboard lets you type. After this chapter, your OS reacts to you.</p>
+    <p class="eyebrow">Chapter 4 · about 40 minutes</p>
+    <h1>Timer and <b>keyboard</b></h1>
+    <p class="lede">Your first two <b>drivers</b>. The timer lets your OS count time; the keyboard lets you type. After this chapter, your OS reacts to you.</p>
 
-<h2>The <b>idea</b></h2>
-<ul>
-<li>Hardware raises <b>IRQs</b> (interrupt requests). The <b>PIC</b> chip collects them and passes them to the CPU as interrupts 32–47 (we moved them there in chapter 3). After each one, we must send the PIC an <b>End Of Interrupt</b>, or it never sends another.</li>
-<li>The <b>PIT</b> timer counts at 1,193,182 Hz. Divide that by 100 and it raises IRQ 0 a hundred times a second. Each one is a <b>tick</b>.</li>
-<li>The keyboard raises IRQ 1 for each key pressed or released. We read a <b>scancode</b> from port <code>0x60</code>: a number for the key's position, not a letter. We turn it into a letter with a table, and track Shift ourselves.</li>
-<li>Keys wait in a small <b>ring buffer</b> (a queue that wraps around) until someone reads them.</li>
-<li><code>sti</code> turns interrupts on. <code>hlt</code> sleeps until the next interrupt: no wasted CPU while waiting for a key.</li>
-</ul>
+    <h2>The <b>idea</b></h2>
+    <ul>
+    <li>Hardware raises <b>IRQs</b> (interrupt requests). The <b>PIC</b> chip collects them and passes them to the CPU as interrupts 32–47 (we moved them there in chapter 3). After each one, we must send the PIC an <b>End Of Interrupt</b>, or it never sends another.</li>
+    <li>The <b>PIT</b> timer counts at 1,193,182 Hz. Divide that by 100 and it raises IRQ 0 a hundred times a second. Each one is a <b>tick</b>.</li>
+    <li>The keyboard raises IRQ 1 for each key pressed or released. We read a <b>scancode</b> from port <code>0x60</code>: a number for the key's position, not a letter. We turn it into a letter with a table, and track Shift ourselves.</li>
+    <li>Keys wait in a small <b>ring buffer</b> (a queue that wraps around) until someone reads them.</li>
+    <li><code>sti</code> turns interrupts on. <code>hlt</code> sleeps until the next interrupt: no wasted CPU while waiting for a key.</li>
+    </ul>
 
-<h2>Do <b>it</b></h2>
-<ol class="steps">
-<li><h3>The timer</h3><div class="prompt"><p>Chapter 4, part 1. Add irq_install(irq, handler) in idt.c: it stores the handler and unmasks that IRQ in the PIC. In isr_handler, for interrupts 32-47 call the handler and send End Of Interrupt (to both PICs for IRQ 8-15). Ignore spurious IRQ 7 and 15.</p><p>Then src/timer.c and timer.h: program the PIT channel 0 to 100 Hz, count ticks on IRQ 0, and add timer_ticks(), uptime_seconds() and timer_sleep_ms(). Turn interrupts on with sti at the end of kernel_main, then print the uptime once a second as a test.</p></div>
-<div class="code"><pre>make run</pre></div></li>
-<li><h3>The keyboard</h3><div class="prompt"><p>Chapter 4, part 2. Add src/keyboard.c and keyboard.h: on IRQ 1 read the scancode from port 0x60, ignore key releases (except to track Shift), translate scancode set 1 to characters with two tables for a US QWERTY layout (normal and shifted), handle Caps Lock, and turn the arrow keys (0xE0 prefix) into special codes KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT. Put keys in a 64-byte ring buffer.</p><p>Add input_poll() that returns the next key or -1, and input_getc() that waits for a key with hlt. Both should also accept characters typed in the serial terminal (\r means Enter, 0x7F means Backspace). Replace the uptime test with a loop that prints every key I type.</p></div>
-<div class="code"><pre>make run</pre></div><p>Click inside the QEMU window, then type.</p></li>
-<li><h3>Understand it</h3><p>Ask your AI: What happens if I forget the End Of Interrupt? Why is the variable that counts ticks <code>volatile</code>? Why do the arrow keys send two bytes?</p></li>
-</ol>
-<div class="note idea"><p><b>On an AZERTY keyboard</b>, letters come out in QWERTY places (A gives Q). That's expected: scancodes are key <i>positions</i>. A nice challenge: ask your AI to add a French AZERTY table and a way to switch.</p></div>
-<h2>It works <b>when</b></h2>
-<ul class="checks"><li>The boot shows <code>[ OK ] Timer</code> and <code>[ OK ] Keyboard</code>.</li><li>What you type appears, with capitals when you hold Shift.</li><li>Your terminal shows the same text, and typing in the terminal works too.</li></ul>
-<div class="note"><p><b>Nothing happens when I type</b>: did you call <code>sti</code>? Is IRQ 1 unmasked? Do you send End Of Interrupt after <i>every</i> IRQ, including the timer's? If the timer works only once, it's the End Of Interrupt.</p></div>
-<details class="ref" data-files="os/src/timer.h os/src/timer.c os/src/keyboard.h os/src/keyboard.c os/src/idt.c"><summary>Peek at the reference solution (open it only when you are stuck)</summary><p>This is the code from the finished OS in <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Yours does not have to look the same: if it works and you understand it, it is right.</p></details>
-<h2>Save <b>your progress</b></h2>
+    <h2>Do <b>it</b></h2>
+    <ol class="steps">
+    <li><h3>The timer</h3><div class="prompt"><p>Chapter 4, part 1. Add irq_install(irq, handler) in idt.c: it stores the handler and unmasks that IRQ in the PIC. In isr_handler, for interrupts 32-47 call the handler and send End Of Interrupt (to both PICs for IRQ 8-15). Ignore spurious IRQ 7 and 15.</p><p>Then src/timer.c and timer.h: program the PIT channel 0 to 100 Hz, count ticks on IRQ 0, and add timer_ticks(), uptime_seconds() and timer_sleep_ms(). Turn interrupts on with sti at the end of kernel_main, then print the uptime once a second as a test.</p></div>
+    <div class="code"><pre>make run</pre></div></li>
+    <li><h3>The keyboard</h3><div class="prompt"><p>Chapter 4, part 2. Add src/keyboard.c and keyboard.h: on IRQ 1 read the scancode from port 0x60, ignore key releases (except to track Shift), translate scancode set 1 to characters with two tables for a US QWERTY layout (normal and shifted), handle Caps Lock, and turn the arrow keys (0xE0 prefix) into special codes KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT. Put keys in a 64-byte ring buffer.</p><p>Add input_poll() that returns the next key or -1, and input_getc() that waits for a key with hlt. Both should also accept characters typed in the serial terminal (\r means Enter, 0x7F means Backspace). Replace the uptime test with a loop that prints every key I type.</p></div>
+    <div class="code"><pre>make run</pre></div><p>Click inside the QEMU window, then type.</p></li>
+    <li><h3>Understand it</h3><p>Ask your AI: What happens if I forget the End Of Interrupt? Why is the variable that counts ticks <code>volatile</code>? Why do the arrow keys send two bytes?</p></li>
+    </ol>
+    <div class="note idea"><p><b>On an AZERTY keyboard</b>, letters come out in QWERTY places (A gives Q). That's expected: scancodes are key <i>positions</i>. A nice challenge: ask your AI to add a French AZERTY table and a way to switch.</p></div>
+    <h2>It works <b>when</b></h2>
+    <ul class="checks"><li>The boot shows <code>[ OK ] Timer</code> and <code>[ OK ] Keyboard</code>.</li><li>What you type appears, with capitals when you hold Shift.</li><li>Your terminal shows the same text, and typing in the terminal works too.</li></ul>
+    <div class="note"><p><b>Nothing happens when I type</b>: did you call <code>sti</code>? Is IRQ 1 unmasked? Do you send End Of Interrupt after <i>every</i> IRQ, including the timer's? If the timer works only once, it's the End Of Interrupt.</p></div>
+    <details class="ref" data-files="os/src/timer.h os/src/timer.c os/src/keyboard.h os/src/keyboard.c os/src/idt.c"><summary>Peek at the reference solution (open it only when you are stuck)</summary><p>This is the code from the finished OS in <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Yours does not have to look the same: if it works and you understand it, it is right.</p></details>
+    <h2>Save <b>your progress</b></h2>
 <p>Save a snapshot with Git, so you can always go back if a later step breaks something:</p>
 <div class="code"><pre>git add -A &amp;&amp; git commit -m &quot;Chapter 4: timer and keyboard drivers&quot;</pre></div>
-
+    
 <label class="done"><input type="checkbox"> I finished this part</label>
 <nav class="pager" aria-label="Previous and next"><a class="btn" href="chapter-3-interrupts.html">← Interrupts and crashes</a><a class="btn btn-primary" href="chapter-5-shell.html">A shell →</a></nav>
 </main>
 </div>
-<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session ·
-<a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
-<script src="assets/site.js?v=20261125c"></script>
+<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session · <a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
+<script src="assets/site.js?v=20261126a"></script>
 </body>
 </html>

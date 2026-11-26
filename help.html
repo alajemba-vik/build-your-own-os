@@ -7,18 +7,21 @@
 <meta name="description" content="Common problems when building the OS, how to ask your AI for help, and a glossary.">
 <meta property="og:title" content="Stuck? Help and glossary · Build your own OS">
 <meta property="og:description" content="Common problems when building the OS, how to ask your AI for help, and a glossary.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/help.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/help.html">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=20261125c">
+<link rel="stylesheet" href="assets/site.css?v=20261126a">
 </head>
-<body data-page="help">
+<body data-page="help" data-root="">
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top">
   <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapters</button>
   <a class="brand" href="index.html"><span class="chip-os">OS</span> Build your own OS <span class="long">· aivancity Tech Club</span></a>
   <span class="spacer"></span>
+  <a class="lang-switch" href="fr/help.html" hreflang="fr" lang="fr" title="Lire en français" data-lang="fr">FR</a>
   <div class="os-switch" role="group" aria-label="My computer">
     <button type="button" data-os="mac" aria-pressed="false">macOS</button>
     <button type="button" data-os="win" aria-pressed="false">Windows</button>
@@ -28,80 +31,79 @@
 <nav class="side" id="side" aria-label="Chapters"><h2>Start</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Welcome<span class="tick"></span></a></li></ol><h2>Set up</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>On a Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>On Windows<span class="tick"></span></a></li></ol><h2>Build it</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Boot and say hello<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>A real console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interrupts and crashes<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Timer and keyboard<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>A shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>Memory<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>A desktop with windows<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>Make it yours and share it<span class="tick"></span></a></li></ol><h2>Help</h2><ol><li><a href="help.html" data-page="help" aria-current="page"><span class="num"></span>Stuck? Glossary<span class="tick"></span></a></li></ol></nav>
 <main id="main">
 
-<p class="eyebrow">Help</p>
-<h1>Stuck? <b>Start here</b></h1>
-<p class="lede">Almost every problem is in the table below. If not, ask your AI the right way, or ask in the room.</p>
+    <p class="eyebrow">Help</p>
+    <h1>Stuck? <b>Start here</b></h1>
+    <p class="lede">Almost every problem is in the table below. If not, ask your AI the right way, or ask in the room.</p>
 
-<h2>Ask your AI <b>the right way</b></h2>
-<div class="prompt"><p>I&#x27;m on chapter [N] of the build-your-own-OS tutorial (32-bit x86, multiboot, clang + ld.lld, QEMU, no C library: see AGENTS.md).
+    <h2>Ask your AI <b>the right way</b></h2>
+    <div class="prompt"><p>I&#x27;m on chapter [N] of the build-your-own-OS tutorial (32-bit x86, multiboot, clang + ld.lld, QEMU, no C library: see AGENTS.md).
 I changed: [WHICH FILES, WHAT].
 I ran: [THE COMMAND].
 I expected: [WHAT SHOULD HAPPEN].
 Instead I see: [WHAT HAPPENS, AND THE FULL ERROR OR THE LAST LINES OF OUTPUT].
 Explain what the error means first, then give me the smallest fix.</p></div>
-<p>The full error matters: paste everything from the first red line. For crashes, paste the panic screen or the output of the <code>-d int,cpu_reset</code> command below.</p>
+    <p>The full error matters: paste everything from the first red line. For crashes, paste the panic screen or the output of the <code>-d int,cpu_reset</code> command below.</p>
 
-<h2>Common <b>problems</b></h2>
-<table>
-<thead><tr><th>You see</th><th>What it means and what to do</th></tr></thead>
-<tbody>
-<tr><td><code>clang: command not found</code> or <code>ld.lld: No such file</code></td><td>The tools aren't installed or not found. Mac: <code>brew install llvm lld</code>. Windows: run the <code>sudo apt install …</code> line from the setup in Ubuntu. Check you are in the Ubuntu window, not PowerShell.</td></tr>
-<tr><td>Errors about <code>i686-elf</code> or <code>ld.lld</code> on a Mac</td><td>Apple's own clang is probably being used. Run <code>brew install llvm lld</code>; the Makefile then finds Homebrew's version by itself.</td></tr>
-<tr><td><code>make: *** No targets specified</code> or <code>No rule to make target</code></td><td>You are not in your OS folder. Run <code>cd ~/my-os</code>.</td></tr>
-<tr><td><code>undefined symbol: memset</code> / <code>memcpy</code></td><td>The compiler uses them for big copies. Write them in <code>src/string.c</code> (chapter 2).</td></tr>
-<tr><td><code>undefined symbol: __udivdi3</code> / <code>__umoddi3</code></td><td>A 64-bit division or <code>%</code>. Use a shift, or 32-bit numbers.</td></tr>
-<tr><td><code>fatal error: 'stdio.h' file not found</code></td><td>There is no C library in a kernel. Use your own <code>kprintf</code>. Only <code>stdint.h</code>, <code>stddef.h</code>, <code>stdbool.h</code> and <code>stdarg.h</code> exist.</td></tr>
-<tr><td>QEMU says <code>Error loading uncompressed kernel without PVH ELF Note</code></td><td>QEMU didn't find the multiboot header. Check <code>.multiboot</code> comes first in <code>linker.ld</code>, the magic number is right, and you built for <code>i686</code> (32-bit).</td></tr>
-<tr><td>QEMU opens and closes right away</td><td>A triple fault (a crash while handling a crash). See below.</td></tr>
-<tr><td>Typing does nothing</td><td>Click inside the QEMU window first. Then check <code>sti</code>, that IRQ 1 is unmasked, and the End Of Interrupt (chapter 4).</td></tr>
-<tr><td>Letters are in the wrong places</td><td>Your keyboard is AZERTY and the table is QWERTY. Expected; see chapter 4's challenge.</td></tr>
-<tr><td>No QEMU window on Windows</td><td>Windows 10 has no window support for Linux apps. Use <code>make run-text</code>. On Windows 11, run <code>wsl --update</code> in PowerShell, then <code>wsl --shutdown</code>, and open Ubuntu again.</td></tr>
-<tr><td>Stuck inside <code>make run-text</code></td><td>Press <kbd>Esc</kbd> then <kbd>2</kbd>, type <code>quit</code>, <kbd>Enter</kbd>. Or close the terminal.</td></tr>
-<tr><td>The mouse is stuck in the QEMU window</td><td>Press <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>G</kbd> (Mac: <kbd>Ctrl</kbd> <kbd>⌥</kbd> <kbd>G</kbd>).</td></tr>
-<tr><td>It worked before and now it's broken</td><td><code>git diff</code> shows what changed since your last save. <code>git restore .</code> goes back to it (and throws away the changes).</td></tr>
-</tbody></table>
+    <h2>Common <b>problems</b></h2>
+    <table>
+    <thead><tr><th>You see</th><th>What it means and what to do</th></tr></thead>
+    <tbody>
+    <tr><td><code>clang: command not found</code> or <code>ld.lld: No such file</code></td><td>The tools aren't installed or not found. Mac: <code>brew install llvm lld</code>. Windows: run the <code>sudo apt install …</code> line from the setup in Ubuntu. Check you are in the Ubuntu window, not PowerShell.</td></tr>
+    <tr><td>Errors about <code>i686-elf</code> or <code>ld.lld</code> on a Mac</td><td>Apple's own clang is probably being used. Run <code>brew install llvm lld</code>; the Makefile then finds Homebrew's version by itself.</td></tr>
+    <tr><td><code>make: *** No targets specified</code> or <code>No rule to make target</code></td><td>You are not in your OS folder. Run <code>cd ~/my-os</code>.</td></tr>
+    <tr><td><code>undefined symbol: memset</code> / <code>memcpy</code></td><td>The compiler uses them for big copies. Write them in <code>src/string.c</code> (chapter 2).</td></tr>
+    <tr><td><code>undefined symbol: __udivdi3</code> / <code>__umoddi3</code></td><td>A 64-bit division or <code>%</code>. Use a shift, or 32-bit numbers.</td></tr>
+    <tr><td><code>fatal error: 'stdio.h' file not found</code></td><td>There is no C library in a kernel. Use your own <code>kprintf</code>. Only <code>stdint.h</code>, <code>stddef.h</code>, <code>stdbool.h</code> and <code>stdarg.h</code> exist.</td></tr>
+    <tr><td>QEMU says <code>Error loading uncompressed kernel without PVH ELF Note</code></td><td>QEMU didn't find the multiboot header. Check <code>.multiboot</code> comes first in <code>linker.ld</code>, the magic number is right, and you built for <code>i686</code> (32-bit).</td></tr>
+    <tr><td>QEMU opens and closes right away</td><td>A triple fault (a crash while handling a crash). See below.</td></tr>
+    <tr><td>Typing does nothing</td><td>Click inside the QEMU window first. Then check <code>sti</code>, that IRQ 1 is unmasked, and the End Of Interrupt (chapter 4).</td></tr>
+    <tr><td>Letters are in the wrong places</td><td>Your keyboard is AZERTY and the table is QWERTY. Expected; see chapter 4's challenge.</td></tr>
+    <tr><td>No QEMU window on Windows</td><td>Windows 10 has no window support for Linux apps. Use <code>make run-text</code>. On Windows 11, run <code>wsl --update</code> in PowerShell, then <code>wsl --shutdown</code>, and open Ubuntu again.</td></tr>
+    <tr><td>Stuck inside <code>make run-text</code></td><td>Press <kbd>Esc</kbd> then <kbd>2</kbd>, type <code>quit</code>, <kbd>Enter</kbd>. Or close the terminal.</td></tr>
+    <tr><td>The mouse is stuck in the QEMU window</td><td>Press <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>G</kbd> (Mac: <kbd>Ctrl</kbd> <kbd>⌥</kbd> <kbd>G</kbd>).</td></tr>
+    <tr><td>It worked before and now it's broken</td><td><code>git diff</code> shows what changed since your last save. <code>git restore .</code> goes back to it (and throws away the changes).</td></tr>
+    </tbody></table>
 
-<h3>See why QEMU crashed</h3>
-<div class="code"><pre>qemu-system-i386 -kernel build/kernel.elf -no-reboot -d int,cpu_reset 2&gt;&amp;1 | tail -40</pre></div>
-<p>The last lines show the interrupts just before the reset. <code>v=0d</code> is a general protection fault, <code>v=0e</code> a page fault, <code>v=08</code> a double fault. Paste them to your AI with the files you changed.</p>
-<h3>Find which line crashed</h3>
-<p>Take the <code>eip</code> from the panic screen and ask the toolchain which function it is in:</p>
-<div class="code only-mac"><pre>&quot;$(brew --prefix llvm)/bin/llvm-addr2line&quot; -f -e build/kernel.elf 0x00101234</pre></div>
-<div class="code only-win"><pre>addr2line -f -e build/kernel.elf 0x00101234     # if missing: sudo apt install binutils</pre></div>
+    <h3>See why QEMU crashed</h3>
+    <div class="code"><pre>qemu-system-i386 -kernel build/kernel.elf -no-reboot -d int,cpu_reset 2&gt;&amp;1 | tail -40</pre></div>
+    <p>The last lines show the interrupts just before the reset. <code>v=0d</code> is a general protection fault, <code>v=0e</code> a page fault, <code>v=08</code> a double fault. Paste them to your AI with the files you changed.</p>
+    <h3>Find which line crashed</h3>
+    <p>Take the <code>eip</code> from the panic screen and ask the toolchain which function it is in:</p>
+    <div class="code only-mac"><pre>&quot;$(brew --prefix llvm)/bin/llvm-addr2line&quot; -f -e build/kernel.elf 0x00101234</pre></div>
+    <div class="code only-win"><pre>addr2line -f -e build/kernel.elf 0x00101234     # if missing: sudo apt install binutils</pre></div>
 
-<h2><b>Glossary</b></h2>
-<table><tbody>
-<tr><th>Kernel</th><td>The core of an OS: the code that controls the hardware and runs everything else.</td></tr>
-<tr><th>Bootloader</th><td>The small program that loads the kernel into memory and starts it. Ours is built into QEMU.</td></tr>
-<tr><th>Multiboot</th><td>A standard way for a bootloader to find and start a kernel: a magic number and a few flags.</td></tr>
-<tr><th>QEMU</th><td>A program that pretends to be a whole PC, so your OS can run in a window.</td></tr>
-<tr><th>Freestanding</th><td>C code with no operating system and no C library under it.</td></tr>
-<tr><th>Linker script</th><td>Tells the linker where each part of the program goes in memory.</td></tr>
-<tr><th>Stack</th><td>Memory where C keeps local variables and return addresses. It grows downwards.</td></tr>
-<tr><th>VGA text mode</th><td>The screen as 80 × 25 characters in memory at <code>0xB8000</code>.</td></tr>
-<tr><th>I/O port</th><td>A number used to talk to a device with <code>inb</code>/<code>outb</code>, separate from memory addresses.</td></tr>
-<tr><th>Serial port</th><td>COM1: sends text byte by byte. QEMU connects it to your terminal.</td></tr>
-<tr><th>Interrupt</th><td>A signal that makes the CPU stop and run a handler, then continue.</td></tr>
-<tr><th>Exception</th><td>An interrupt raised by the CPU because code did something wrong (0–31).</td></tr>
-<tr><th>IRQ</th><td>An interrupt request from a device: 0 is the timer, 1 the keyboard.</td></tr>
-<tr><th>GDT</th><td>Global Descriptor Table: memory segments. We set two that cover everything.</td></tr>
-<tr><th>IDT</th><td>Interrupt Descriptor Table: which handler runs for each interrupt.</td></tr>
-<tr><th>PIC</th><td>The chip that collects hardware IRQs and passes them to the CPU.</td></tr>
-<tr><th>PIT</th><td>The timer chip that ticks at a rate we choose.</td></tr>
-<tr><th>Scancode</th><td>The number a keyboard sends for a key's position.</td></tr>
-<tr><th>Page</th><td>A 4 KiB block of memory, the unit the OS hands out.</td></tr>
-<tr><th>Bitmap allocator</th><td>Keeps one bit per page to know which ones are free.</td></tr>
-<tr><th>Heap / kmalloc</th><td>Where small pieces of memory come from when the kernel asks for them.</td></tr>
-<tr><th>Triple fault</th><td>A crash while handling a crash while handling a crash. The CPU resets.</td></tr>
-<tr><th>Vibe coding</th><td>Building by describing what you want to an AI, running the result, and steering it.</td></tr>
-</tbody></table>
-
+    <h2><b>Glossary</b></h2>
+    <table><tbody>
+    <tr><th>Kernel</th><td>The core of an OS: the code that controls the hardware and runs everything else.</td></tr>
+    <tr><th>Bootloader</th><td>The small program that loads the kernel into memory and starts it. Ours is built into QEMU.</td></tr>
+    <tr><th>Multiboot</th><td>A standard way for a bootloader to find and start a kernel: a magic number and a few flags.</td></tr>
+    <tr><th>QEMU</th><td>A program that pretends to be a whole PC, so your OS can run in a window.</td></tr>
+    <tr><th>Freestanding</th><td>C code with no operating system and no C library under it.</td></tr>
+    <tr><th>Linker script</th><td>Tells the linker where each part of the program goes in memory.</td></tr>
+    <tr><th>Stack</th><td>Memory where C keeps local variables and return addresses. It grows downwards.</td></tr>
+    <tr><th>VGA text mode</th><td>The screen as 80 × 25 characters in memory at <code>0xB8000</code>.</td></tr>
+    <tr><th>I/O port</th><td>A number used to talk to a device with <code>inb</code>/<code>outb</code>, separate from memory addresses.</td></tr>
+    <tr><th>Serial port</th><td>COM1: sends text byte by byte. QEMU connects it to your terminal.</td></tr>
+    <tr><th>Interrupt</th><td>A signal that makes the CPU stop and run a handler, then continue.</td></tr>
+    <tr><th>Exception</th><td>An interrupt raised by the CPU because code did something wrong (0–31).</td></tr>
+    <tr><th>IRQ</th><td>An interrupt request from a device: 0 is the timer, 1 the keyboard.</td></tr>
+    <tr><th>GDT</th><td>Global Descriptor Table: memory segments. We set two that cover everything.</td></tr>
+    <tr><th>IDT</th><td>Interrupt Descriptor Table: which handler runs for each interrupt.</td></tr>
+    <tr><th>PIC</th><td>The chip that collects hardware IRQs and passes them to the CPU.</td></tr>
+    <tr><th>PIT</th><td>The timer chip that ticks at a rate we choose.</td></tr>
+    <tr><th>Scancode</th><td>The number a keyboard sends for a key's position.</td></tr>
+    <tr><th>Page</th><td>A 4 KiB block of memory, the unit the OS hands out.</td></tr>
+    <tr><th>Bitmap allocator</th><td>Keeps one bit per page to know which ones are free.</td></tr>
+    <tr><th>Heap / kmalloc</th><td>Where small pieces of memory come from when the kernel asks for them.</td></tr>
+    <tr><th>Triple fault</th><td>A crash while handling a crash while handling a crash. The CPU resets.</td></tr>
+    <tr><th>Vibe coding</th><td>Building by describing what you want to an AI, running the result, and steering it.</td></tr>
+    </tbody></table>
+    
 
 <nav class="pager" aria-label="Previous and next"><a class="btn" href="chapter-8-make-it-yours.html">← Make it yours and share it</a></nav>
 </main>
 </div>
-<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session ·
-<a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
-<script src="assets/site.js?v=20261125c"></script>
+<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session · <a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
+<script src="assets/site.js?v=20261126a"></script>
 </body>
 </html>

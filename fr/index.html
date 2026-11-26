@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Construisez votre propre système d’exploitation, avec l’IA · Construisez votre OS</title>
+<meta name="description" content="Construisez un petit système d’exploitation de zéro, sur macOS ou Windows, en vibe coding avec l’IA de votre choix. Un tutoriel de l’aivancity Tech Club.">
+<meta property="og:title" content="Construisez votre propre système d’exploitation, avec l’IA · Construisez votre OS">
+<meta property="og:description" content="Construisez un petit système d’exploitation de zéro, sur macOS ou Windows, en vibe coding avec l’IA de votre choix. Un tutoriel de l’aivancity Tech Club.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=20261126a">
+</head>
+<body data-page="index" data-root="../">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapitres</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Construisez votre OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <a class="lang-switch" href="../index.html" hreflang="en" lang="en" title="Read in English" data-lang="en">EN</a>
+  <div class="os-switch" role="group" aria-label="Mon ordinateur">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapitres"><h2>Commencer</h2><ol><li><a href="index.html" data-page="index" aria-current="page"><span class="num"></span>Bienvenue<span class="tick"></span></a></li></ol><h2>Installer</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>Sur Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>Sur Windows<span class="tick"></span></a></li></ol><h2>Construire</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Démarrer et dire bonjour<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>Une vraie console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interruptions et plantages<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Minuteur et clavier<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>Un shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>La mémoire<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>Un bureau avec des fenêtres<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>À vous de jouer, et partagez-le<span class="tick"></span></a></li></ol><h2>Aide</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Bloqué ? Glossaire<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">aivancity Tech Club · séance de construction</p>
+<h1>Construisez votre propre <b>système d’exploitation</b></h1>
+<p class="lede">D’un écran noir à un shell et à un bureau avec des fenêtres. Écrit de zéro en C, en vibe coding avec l’IA de votre choix, sur Mac ou sur PC Windows. Huit chapitres courts.</p>
+<div class="actions">
+  <a class="btn btn-primary only-mac" href="setup-mac.html">Installer sur mon Mac →</a>
+  <a class="btn btn-primary only-win" href="setup-windows.html">Installer sur mon PC Windows →</a>
+  <a class="btn only-mac" href="setup-windows.html">Je suis sous Windows</a>
+  <a class="btn only-win" href="setup-mac.html">Je suis sur Mac</a>
+</div>
+<pre class="screen" aria-label="Ce que votre OS affiche au démarrage"><span class="c">  __  __        ___  ____
+ |  \/  |_   _ / _ \/ ___|
+ | |\/| | | | | | | \___ \
+ | |  | | |_| | |_| |___) |
+ |_|  |_|\__, |\___/|____/
+         |___/   </span><span class="w">Welcome to MyOS 0.1</span>
+
+<span class="g">[ OK ]</span> GDT: memory segments loaded
+<span class="g">[ OK ]</span> IDT: interrupt handlers installed
+<span class="g">[ OK ]</span> Timer: ticking 100 times a second
+<span class="g">[ OK ]</span> Keyboard: ready
+<span class="g">[ OK ]</span> Memory: 127 MiB found
+
+Type help to see what you can do.
+<span class="c">MyOS&gt;</span> about
+MyOS 0.1: a tiny operating system for 32-bit x86 PCs.
+Written in C, from scratch, with no help from Windows, macOS or Linux.
+<span class="c">MyOS&gt;</span> _</pre>
+<p><small>Voici ce que l’OS terminé affiche au démarrage. Tout ce qui est à l’écran, c’est du code que vous allez écrire. L’OS parle anglais, comme la plupart des systèmes à leurs débuts : à vous de le traduire si vous le souhaitez.</small></p>
+
+<div class="note thursday">
+<p><b>Jeudi 26 novembre, 13 h – 14 h, AIClinic – salle 107.</b></p>
+<p><b>Avant de venir (15 minutes) :</b> suivez l’installation pour <a href="setup-mac.html">Mac</a> ou <a href="setup-windows.html">Windows</a> jusqu’à voir « Hello from my own operating system! ». Les téléchargements sont lourds : ne comptez pas sur le Wi-Fi de l’école.<br>
+<b>En salle :</b> chapitres 1 à 3, ensemble. <b>Chez vous :</b> chapitres 4 à 8, à votre rythme. Apportez un ordinateur portable et son chargeur.</p>
+</div>
+
+<h2>C’est quoi, un <b>système d’exploitation</b> ?</h2>
+<p>C’est le programme qui démarre en premier et qui gouverne l’ordinateur : il parle au matériel (écran, clavier, mémoire, minuteur), il décide de ce qui s’exécute et quand, et il offre aux autres programmes une façon simple d’utiliser tout cela. Windows, macOS, Linux, Android et iOS sont des systèmes d’exploitation (OS). En leur cœur se trouve le <b>noyau</b> (kernel), et c’est lui que nous construisons.</p>
+<p>Quand vous appuyez sur le bouton d’alimentation, voici ce qui se passe. Vous écrirez les parties en gras :</p>
+<div class="chain" aria-label="La chaîne de démarrage"><span>Mise sous tension</span><i>→</i><span>Micrologiciel (BIOS)</span><i>→</i><span>Chargeur d’amorçage</span><i>→</i><span><b>boot.S</b></span><i>→</i><span><b>kernel_main()</b></span><i>→</i><span><b>pilotes</b></span><i>→</i><span><b>votre shell</b></span></div>
+
+<h2>Va-t-il remplacer <b>Windows ou macOS</b> ?</h2>
+<p>Non. Votre OS tourne dans <b>QEMU</b>, un programme gratuit qui se fait passer pour un PC entier (un <i>émulateur</i>). Rien ne change sur votre ordinateur, et si votre OS plante, il suffit de fermer la fenêtre. C’est pourtant un vrai OS : le même code pourrait démarrer un vrai PC.</p>
+<p>Nous visons le PC Intel 32 bits classique (x86), parce que c’est le mieux documenté et le plus simple pour commencer. Il fonctionne de la même façon sur les Mac Intel, les Mac Apple Silicon (M1–M4) et les PC Windows.</p>
+
+<h2>Comment <b>vibe-coder</b> un OS</h2>
+<p>Vous décrivez ce que vous voulez, l’IA écrit le code, et vous l’exécutez, le lisez et la guidez. Un OS s’y prête très bien : l’IA connaît les astuces du matériel, et vous apprenez à quoi sert chacune. Cinq règles pour que cela marche :</p>
+<ol class="steps">
+<li><b>Donnez le brief à votre IA.</b> Le kit de départ contient <a href="https://github.com/alajemba-vik/build-your-own-os/blob/main/starter/AGENTS.md"><code>AGENTS.md</code></a> : les règles du projet (32 bits, pas de bibliothèque C, clang, QEMU…). Les agents de code le lisent tout seuls ; avec une IA de chat, collez-le en premier. Il est en anglais, mais votre IA vous répondra en français si vous lui écrivez en français.</li>
+<li><b>Un chapitre, une étape à la fois.</b> Chaque chapitre vous donne un prompt. Ne demandez pas tout l’OS d’un coup : vous obtiendriez quelque chose que vous ne sauriez pas réparer.</li>
+<li><b>Demandez pourquoi, pas seulement quoi.</b> Chaque chapitre propose des questions à poser. Si vous ne savez pas expliquer une ligne, demandez jusqu’à ce que vous sachiez.</li>
+<li><b>Lancez-le après chaque modification</b> avec <code>make run</code>. Quand ça casse, collez l’erreur complète à l’IA.</li>
+<li><b>Enregistrez avec Git</b> quand quelque chose marche. Bloqué ? Chaque chapitre contient le code de référence d’un OS terminé, pour comparer.</li>
+</ol>
+
+<h2>Quelle <b>IA</b> ?</h2>
+<div class="grid">
+<div class="card"><h3>Agents de code</h3><p>Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI. Ils lisent les fichiers de votre dossier et <code>AGENTS.md</code>, modifient le code et peuvent lancer <code>make</code>. Le choix le plus simple.</p></div>
+<div class="card"><h3>IA de chat</h3><p>ChatGPT, Claude.ai, Gemini. Collez <code>AGENTS.md</code> au début, puis les fichiers à modifier, et recopiez les réponses dans vos fichiers.</p></div>
+<div class="card"><h3>Sans IA ?</h3><p>Ça marche aussi. Chaque chapitre explique l’idée, et le code de référence est entièrement commenté (en anglais). Lisez-le, puis écrivez-le vous-même.</p></div>
+</div>
+
+<h2>Les <b>chapitres</b></h2>
+<table>
+<thead><tr><th>#</th><th>Vous construisez</th><th>Durée</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><a href="chapter-1-boot.html">Démarrer et dire bonjour</a> : le noyau de départ, comment un PC démarre</td><td>20 min</td></tr>
+<tr><td>2</td><td><a href="chapter-2-console.html">Une vraie console</a> : défilement, couleurs, <code>kprintf</code>, le port série</td><td>30 min</td></tr>
+<tr><td>3</td><td><a href="chapter-3-interrupts.html">Interruptions et plantages</a> : GDT, IDT, un écran de kernel panic</td><td>40 min</td></tr>
+<tr><td>4</td><td><a href="chapter-4-keyboard.html">Minuteur et clavier</a> : vos premiers pilotes</td><td>40 min</td></tr>
+<tr><td>5</td><td><a href="chapter-5-shell.html">Un shell</a> : des commandes à taper</td><td>30 min</td></tr>
+<tr><td>6</td><td><a href="chapter-6-memory.html">La mémoire</a> : trouver la RAM, distribuer des pages</td><td>40 min</td></tr>
+<tr><td>7</td><td><a href="chapter-7-desktop.html">Un bureau avec des fenêtres</a> : à déplacer avec les flèches</td><td>40 min</td></tr>
+<tr><td>8</td><td><a href="chapter-8-make-it-yours.html">À vous de jouer, et partagez-le</a></td><td>autant que vous voulez</td></tr>
+</tbody></table>
+<p>L’OS terminé complet se trouve dans le <a href="https://github.com/alajemba-vik/build-your-own-os">dépôt GitHub</a> (dossier <code>os/</code>). Chaque modification est compilée et démarrée automatiquement sous Linux et macOS, pour vérifier que les instructions fonctionnent.</p>
+
+
+<nav class="pager" aria-label="Précédent et suivant"><span></span><a class="btn btn-primary" href="setup-mac.html">Sur Mac →</a></nav>
+</main>
+</div>
+<footer>Réalisé par le <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> pour la séance du jeudi · <a href="https://github.com/alajemba-vik/build-your-own-os">Code sur GitHub</a> · Licence MIT · Une erreur ? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Dites-le-nous</a></footer>
+<script src="../assets/site.js?v=20261126a"></script>
+</body>
+</html>

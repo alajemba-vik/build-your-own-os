@@ -58,6 +58,8 @@ kbd { font-family: var(--mono); font-size: .82em; border: 1.5px solid var(--line
 .actions { display: flex; flex-wrap: wrap; gap: .7rem; margin: 1.3rem 0; }
 
 /* OS switch */
+.lang-switch { font: 700 .88rem var(--sans); color: var(--ink); text-decoration: none; border: 2px solid var(--line); border-radius: 999px; padding: .3rem .75rem; }
+.lang-switch:hover { background: var(--navy); color: var(--bg); }
 .os-switch { display: inline-flex; border: 2px solid var(--line); border-radius: 999px; overflow: hidden; }
 .os-switch button { border: 0; background: transparent; color: var(--ink); font: 700 .88rem var(--sans); padding: .35rem .85rem; cursor: pointer; }
 .os-switch button[aria-pressed="true"] { background: var(--navy); color: var(--bg); }
@@ -87,6 +89,7 @@ body[data-os="mac"] .only-win, body[data-os="win"] .only-mac { display: none !im
 .copy:hover { background: #33406b; }
 .prompt { position: relative; border: 2px solid var(--line); border-radius: 18px; background: var(--card); padding: 1rem 1.2rem 1rem; margin: .8rem 0 1.2rem; box-shadow: var(--shadow); }
 .prompt::before { content: "Ask your AI"; display: block; font: 400 1.3rem/1 var(--hand); color: var(--teal-ink); margin-bottom: .4rem; }
+html[lang="fr"] .prompt::before { content: "Demandez à votre IA"; }
 .prompt p { margin: .4rem 0; white-space: pre-wrap; }
 .prompt .copy { background: var(--navy); border-color: var(--line); color: var(--bg); }
 pre.screen { background: #000; color: #aaa; border-radius: 12px; font-size: 13.5px; line-height: 1.35; box-shadow: var(--shadow); }
@@ -112,5 +115,5 @@ footer { border-top: 2px solid var(--line); padding: 1.4rem; text-align: center;
   nav.side { display: none; position: static; max-height: none; border-bottom: 2px solid var(--line); background: var(--card); }
   body.menu-open nav.side { display: block; }
   main { padding: 1.4rem 1.1rem 3rem; }
-  .top { padding: .7rem 1rem; } .top .brand span.long { display: none; }
+  .top { padding: .7rem 1rem; flex-wrap: wrap; gap: .6rem; } .top .brand span.long { display: none; }
 }

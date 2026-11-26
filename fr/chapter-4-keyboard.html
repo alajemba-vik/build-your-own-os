@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapitre 4 : Minuteur et clavier · Construisez votre OS</title>
+<meta name="description" content="Les IRQ, le PIC, le minuteur PIT et un pilote de clavier PS/2.">
+<meta property="og:title" content="Chapitre 4 : Minuteur et clavier · Construisez votre OS">
+<meta property="og:description" content="Les IRQ, le PIC, le minuteur PIT et un pilote de clavier PS/2.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/chapter-4-keyboard.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/chapter-4-keyboard.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=20261126a">
+</head>
+<body data-page="ch4" data-root="../">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapitres</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Construisez votre OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <a class="lang-switch" href="../chapter-4-keyboard.html" hreflang="en" lang="en" title="Read in English" data-lang="en">EN</a>
+  <div class="os-switch" role="group" aria-label="Mon ordinateur">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapitres"><h2>Commencer</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Bienvenue<span class="tick"></span></a></li></ol><h2>Installer</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>Sur Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>Sur Windows<span class="tick"></span></a></li></ol><h2>Construire</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Démarrer et dire bonjour<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>Une vraie console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interruptions et plantages<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4" aria-current="page"><span class="num">4</span>Minuteur et clavier<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>Un shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>La mémoire<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>Un bureau avec des fenêtres<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>À vous de jouer, et partagez-le<span class="tick"></span></a></li></ol><h2>Aide</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Bloqué ? Glossaire<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Chapitre 4 · environ 40 minutes</p>
+<h1>Minuteur et <b>clavier</b></h1>
+<p class="lede">Vos deux premiers <b>pilotes</b> (drivers). Le minuteur permet à votre OS de compter le temps ; le clavier vous permet de taper. Après ce chapitre, votre OS vous répond.</p>
+
+<h2>L’<b>idée</b></h2>
+<ul>
+<li>Le matériel lève des <b>IRQ</b> (demandes d’interruption). La puce <b>PIC</b> les rassemble et les transmet au processeur comme interruptions 32–47 (nous les y avons déplacées au chapitre 3). Après chacune, il faut envoyer au PIC un <b>End Of Interrupt</b> (fin d’interruption), sinon il n’en envoie plus jamais.</li>
+<li>Le minuteur <b>PIT</b> compte à 1 193 182 Hz. Divisez par 100 et il lève l’IRQ 0 cent fois par seconde. Chacune est un <b>tick</b>.</li>
+<li>Le clavier lève l’IRQ 1 à chaque touche appuyée ou relâchée. On lit un <b>scancode</b> sur le port <code>0x60</code> : un numéro qui désigne la position de la touche, pas une lettre. On le transforme en lettre avec une table, et on suit nous-mêmes l’état de Maj.</li>
+<li>Les touches attendent dans un petit <b>tampon circulaire</b> (une file qui reboucle) jusqu’à ce que quelqu’un les lise.</li>
+<li><code>sti</code> active les interruptions. <code>hlt</code> dort jusqu’à la prochaine interruption : aucun gaspillage de processeur en attendant une touche.</li>
+</ul>
+
+<h2>À <b>vous</b></h2>
+<ol class="steps">
+<li><h3>Le minuteur</h3><div class="prompt"><p>Chapitre 4, partie 1. Ajoute irq_install(irq, handler) dans idt.c : elle enregistre le gestionnaire et démasque cette IRQ dans le PIC. Dans isr_handler, pour les interruptions 32-47, appelle le gestionnaire et envoie l’End Of Interrupt (aux deux PIC pour les IRQ 8-15). Ignore les IRQ parasites 7 et 15.</p><p>Puis src/timer.c et timer.h : programme le canal 0 du PIT à 100 Hz, compte les ticks sur l’IRQ 0, et ajoute timer_ticks(), uptime_seconds() et timer_sleep_ms(). Active les interruptions avec sti à la fin de kernel_main, puis affiche le temps écoulé une fois par seconde pour tester.</p></div>
+<div class="code"><pre>make run</pre></div></li>
+<li><h3>Le clavier</h3><div class="prompt"><p>Chapitre 4, partie 2. Ajoute src/keyboard.c et keyboard.h : sur l’IRQ 1, lis le scancode sur le port 0x60, ignore les relâchements de touches (sauf pour suivre Maj), traduis le scancode set 1 en caractères avec deux tables pour un clavier QWERTY américain (normal et avec Maj), gère Verr. Maj, et transforme les flèches (préfixe 0xE0) en codes spéciaux KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT. Range les touches dans un tampon circulaire de 64 octets.</p><p>Ajoute input_poll(), qui renvoie la touche suivante ou -1, et input_getc(), qui attend une touche avec hlt. Les deux doivent aussi accepter les caractères tapés dans le terminal série (\r veut dire Entrée, 0x7F veut dire Retour arrière). Remplace le test du temps écoulé par une boucle qui affiche chaque touche que je tape.</p></div>
+<div class="code"><pre>make run</pre></div><p>Cliquez dans la fenêtre QEMU, puis tapez.</p></li>
+<li><h3>Comprenez-le</h3><p>Demandez à votre IA : Que se passe-t-il si j’oublie l’End Of Interrupt ? Pourquoi la variable qui compte les ticks est-elle <code>volatile</code> ? Pourquoi les flèches envoient-elles deux octets ?</p></li>
+</ol>
+<div class="note idea"><p><b>Sur un clavier AZERTY</b>, les lettres sortent aux places du QWERTY (A donne Q). C’est normal : les scancodes sont des <i>positions</i> de touches. Un joli défi : demandez à votre IA d’ajouter une table AZERTY française et un moyen de basculer de l’une à l’autre.</p></div>
+<h2>Ça marche <b>quand</b></h2>
+<ul class="checks"><li>Le démarrage affiche <code>[ OK ] Timer</code> et <code>[ OK ] Keyboard</code>.</li><li>Ce que vous tapez s’affiche, avec des majuscules quand vous maintenez Maj.</li><li>Votre terminal affiche le même texte, et taper dans le terminal fonctionne aussi.</li></ul>
+<div class="note"><p><b>Rien ne se passe quand je tape</b> : avez-vous appelé <code>sti</code> ? L’IRQ 1 est-elle démasquée ? Envoyez-vous l’End Of Interrupt après <i>chaque</i> IRQ, y compris celles du minuteur ? Si le minuteur ne marche qu’une fois, c’est l’End Of Interrupt.</p></div>
+<details class="ref" data-files="os/src/timer.h os/src/timer.c os/src/keyboard.h os/src/keyboard.c os/src/idt.c"><summary>Jeter un œil à la solution de référence (à ouvrir seulement si vous êtes bloqué)</summary><p>Voici le code de l’OS terminé, dans <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Le vôtre n’a pas besoin d’être identique : s’il fonctionne et que vous le comprenez, il est juste.</p></details>
+<h2>Enregistrez <b>votre progression</b></h2>
+<p>Prenez une photo de votre code avec Git, pour pouvoir revenir en arrière si une étape suivante casse quelque chose :</p>
+<div class="code"><pre>git add -A &amp;&amp; git commit -m &quot;Chapitre 4 : pilotes du minuteur et du clavier&quot;</pre></div>
+
+<label class="done"><input type="checkbox"> J’ai terminé cette partie</label>
+<nav class="pager" aria-label="Précédent et suivant"><a class="btn" href="chapter-3-interrupts.html">← Interruptions et plantages</a><a class="btn btn-primary" href="chapter-5-shell.html">Un shell →</a></nav>
+</main>
+</div>
+<footer>Réalisé par le <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> pour la séance du jeudi · <a href="https://github.com/alajemba-vik/build-your-own-os">Code sur GitHub</a> · Licence MIT · Une erreur ? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Dites-le-nous</a></footer>
+<script src="../assets/site.js?v=20261126a"></script>
+</body>
+</html>

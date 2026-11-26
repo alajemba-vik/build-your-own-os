@@ -7,18 +7,21 @@
 <meta name="description" content="Ideas to extend your OS, from themes to multitasking, and how to share it.">
 <meta property="og:title" content="Chapter 8: Make it yours and share it · Build your own OS">
 <meta property="og:description" content="Ideas to extend your OS, from themes to multitasking, and how to share it.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/chapter-8-make-it-yours.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/chapter-8-make-it-yours.html">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=20261125c">
+<link rel="stylesheet" href="assets/site.css?v=20261126a">
 </head>
-<body data-page="ch8">
+<body data-page="ch8" data-root="">
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top">
   <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapters</button>
   <a class="brand" href="index.html"><span class="chip-os">OS</span> Build your own OS <span class="long">· aivancity Tech Club</span></a>
   <span class="spacer"></span>
+  <a class="lang-switch" href="fr/chapter-8-make-it-yours.html" hreflang="fr" lang="fr" title="Lire en français" data-lang="fr">FR</a>
   <div class="os-switch" role="group" aria-label="My computer">
     <button type="button" data-os="mac" aria-pressed="false">macOS</button>
     <button type="button" data-os="win" aria-pressed="false">Windows</button>
@@ -28,49 +31,48 @@
 <nav class="side" id="side" aria-label="Chapters"><h2>Start</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Welcome<span class="tick"></span></a></li></ol><h2>Set up</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>On a Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>On Windows<span class="tick"></span></a></li></ol><h2>Build it</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Boot and say hello<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>A real console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interrupts and crashes<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Timer and keyboard<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>A shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>Memory<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>A desktop with windows<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8" aria-current="page"><span class="num">8</span>Make it yours and share it<span class="tick"></span></a></li></ol><h2>Help</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Stuck? Glossary<span class="tick"></span></a></li></ol></nav>
 <main id="main">
 
-<p class="eyebrow">Chapter 8 · as long as you like</p>
-<h1>Make it yours <b>and share it</b></h1>
-<p class="lede">You have a working operating system: a boot process, drivers, a crash screen, a shell, a memory allocator and a desktop. Now give it a name, add the feature you want, and show it to the club.</p>
+    <p class="eyebrow">Chapter 8 · as long as you like</p>
+    <h1>Make it yours <b>and share it</b></h1>
+    <p class="lede">You have a working operating system: a boot process, drivers, a crash screen, a shell, a memory allocator and a desktop. Now give it a name, add the feature you want, and show it to the club.</p>
 
-<h2>Give it <b>a name</b></h2>
-<p>Change <code>OS_NAME</code> in <code>src/os.h</code>, and ask your AI for a new ASCII-art logo with that name.</p>
+    <h2>Give it <b>a name</b></h2>
+    <p>Change <code>OS_NAME</code> in <code>src/os.h</code>, and ask your AI for a new ASCII-art logo with that name.</p>
 
-<h2>Ideas, <b>easy to hard</b></h2>
-<table>
-<thead><tr><th>Idea</th><th>What you learn</th></tr></thead>
-<tbody>
-<tr><td><b>Themes</b>: a <code>theme</code> command that recolours the shell and the desktop</td><td>VGA colours</td></tr>
-<tr><td><b>Real date and time</b> from the PC's clock chip, in the top bar</td><td>The CMOS RTC (ports 0x70/0x71)</td></tr>
-<tr><td><b>AZERTY</b> keyboard, and a <code>layout</code> command</td><td>Scancodes</td></tr>
-<tr><td><b>A game</b>: snake, pong, or 2048 in a window</td><td>Game loop, timer, randomness</td></tr>
-<tr><td><b>A notepad</b> that keeps notes while the OS runs</td><td><code>kmalloc</code>, strings</td></tr>
-<tr><td><b>Sound</b>: a beep at boot from the PC speaker (run QEMU with <code>-audiodev</code> and <code>-machine pcspk-audiodev=…</code>)</td><td>PIT channel 2</td></tr>
-<tr><td><b>A better heap</b> with <code>kfree</code></td><td>Free lists, fragmentation</td></tr>
-<tr><td><b>Paging</b>: give the kernel its own view of memory</td><td>Page tables, CR3, page faults</td></tr>
-<tr><td><b>Multitasking</b>: two tasks taking turns on the timer</td><td>Context switches, scheduling</td></tr>
-<tr><td><b>Graphics mode</b>: pixels instead of characters</td><td>Framebuffers (bootloaders like GRUB or Limine)</td></tr>
-</tbody></table>
-<div class="prompt"><p>I finished the 8 chapters of the tutorial. I want to add: [YOUR IDEA]. First explain how it works on real PC hardware and which parts of my OS need to change. Then break it into 3 to 5 small steps I can test one by one, and do only the first step.</p></div>
-<p>When you outgrow this, the <a href="https://wiki.osdev.org/Expanded_Main_Page">OSDev wiki</a> is the place real hobby-OS builders learn from. Projects like SerenityOS started exactly where you are now.</p>
+    <h2>Ideas, <b>easy to hard</b></h2>
+    <table>
+    <thead><tr><th>Idea</th><th>What you learn</th></tr></thead>
+    <tbody>
+    <tr><td><b>Themes</b>: a <code>theme</code> command that recolours the shell and the desktop</td><td>VGA colours</td></tr>
+    <tr><td><b>Real date and time</b> from the PC's clock chip, in the top bar</td><td>The CMOS RTC (ports 0x70/0x71)</td></tr>
+    <tr><td><b>AZERTY</b> keyboard, and a <code>layout</code> command</td><td>Scancodes</td></tr>
+    <tr><td><b>A game</b>: snake, pong, or 2048 in a window</td><td>Game loop, timer, randomness</td></tr>
+    <tr><td><b>A notepad</b> that keeps notes while the OS runs</td><td><code>kmalloc</code>, strings</td></tr>
+    <tr><td><b>Sound</b>: a beep at boot from the PC speaker (run QEMU with <code>-audiodev</code> and <code>-machine pcspk-audiodev=…</code>)</td><td>PIT channel 2</td></tr>
+    <tr><td><b>A better heap</b> with <code>kfree</code></td><td>Free lists, fragmentation</td></tr>
+    <tr><td><b>Paging</b>: give the kernel its own view of memory</td><td>Page tables, CR3, page faults</td></tr>
+    <tr><td><b>Multitasking</b>: two tasks taking turns on the timer</td><td>Context switches, scheduling</td></tr>
+    <tr><td><b>Graphics mode</b>: pixels instead of characters</td><td>Framebuffers (bootloaders like GRUB or Limine)</td></tr>
+    </tbody></table>
+    <div class="prompt"><p>I finished the 8 chapters of the tutorial. I want to add: [YOUR IDEA]. First explain how it works on real PC hardware and which parts of my OS need to change. Then break it into 3 to 5 small steps I can test one by one, and do only the first step.</p></div>
+    <p>When you outgrow this, the <a href="https://wiki.osdev.org/Expanded_Main_Page">OSDev wiki</a> is the place real hobby-OS builders learn from. Projects like SerenityOS started exactly where you are now.</p>
 
-<h2>Put it <b>on GitHub</b></h2>
-<p>With the GitHub CLI (<span class="only-mac"><code>brew install gh</code></span><span class="only-win"><code>sudo apt install gh</code></span>, then <code>gh auth login</code>), in your <code>my-os</code> folder:</p>
-<div class="code"><pre>gh repo create my-os --public --source . --push</pre></div>
-<p>Or create an empty repository on github.com and follow its "push an existing repository" steps. Then take a screenshot of your desktop and add it to your <code>README.md</code>.</p>
+    <h2>Put it <b>on GitHub</b></h2>
+    <p>With the GitHub CLI (<span class="only-mac"><code>brew install gh</code></span><span class="only-win"><code>sudo apt install gh</code></span>, then <code>gh auth login</code>), in your <code>my-os</code> folder:</p>
+    <div class="code"><pre>gh repo create my-os --public --source . --push</pre></div>
+    <p>Or create an empty repository on github.com and follow its "push an existing repository" steps. Then take a screenshot of your desktop and add it to your <code>README.md</code>.</p>
 
-<h2>Show it to <b>the club</b></h2>
-<ul>
-<li>Bring it to a Thursday session and show it. Two minutes is enough: what you added, and what was hard.</li>
-<li>Post your screenshot and repository link in the club's WhatsApp group.</li>
-<li>Want it on the club website? Ask an organizer to add it to the <a href="https://aivancity-tech-club.github.io/showcase">student apps showcase</a>.</li>
-</ul>
-
+    <h2>Show it to <b>the club</b></h2>
+    <ul>
+    <li>Bring it to a Thursday session and show it. Two minutes is enough: what you added, and what was hard.</li>
+    <li>Post your screenshot and repository link in the club's WhatsApp group.</li>
+    <li>Want it on the club website? Ask an organizer to add it to the <a href="https://aivancity-tech-club.github.io/showcase">student apps showcase</a>.</li>
+    </ul>
+    
 <label class="done"><input type="checkbox"> I finished this part</label>
 <nav class="pager" aria-label="Previous and next"><a class="btn" href="chapter-7-desktop.html">← A desktop with windows</a><a class="btn btn-primary" href="help.html">Stuck? Glossary →</a></nav>
 </main>
 </div>
-<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session ·
-<a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
-<script src="assets/site.js?v=20261125c"></script>
+<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session · <a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
+<script src="assets/site.js?v=20261126a"></script>
 </body>
 </html>

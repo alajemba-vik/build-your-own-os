@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installer sur Mac · Construisez votre OS</title>
+<meta name="description" content="Installez clang, lld et QEMU sur macOS avec Homebrew, et démarrez l’OS de départ.">
+<meta property="og:title" content="Installer sur Mac · Construisez votre OS">
+<meta property="og:description" content="Installez clang, lld et QEMU sur macOS avec Homebrew, et démarrez l’OS de départ.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/setup-mac.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/setup-mac.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=20261126a">
+</head>
+<body data-page="setup-mac" data-root="../">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapitres</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Construisez votre OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <a class="lang-switch" href="../setup-mac.html" hreflang="en" lang="en" title="Read in English" data-lang="en">EN</a>
+  <div class="os-switch" role="group" aria-label="Mon ordinateur">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapitres"><h2>Commencer</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Bienvenue<span class="tick"></span></a></li></ol><h2>Installer</h2><ol><li><a href="setup-mac.html" data-page="setup-mac" aria-current="page"><span class="num"></span>Sur Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>Sur Windows<span class="tick"></span></a></li></ol><h2>Construire</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Démarrer et dire bonjour<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>Une vraie console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interruptions et plantages<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Minuteur et clavier<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>Un shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>La mémoire<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>Un bureau avec des fenêtres<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>À vous de jouer, et partagez-le<span class="tick"></span></a></li></ol><h2>Aide</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Bloqué ? Glossaire<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Installation · environ 15 minutes</p>
+<h1>Préparez <b>votre Mac</b></h1>
+<p class="lede">Il vous faut trois choses : les outils de développement d’Apple (Git et make), un compilateur capable de produire du code pour PC (clang et lld, de LLVM), et QEMU pour faire tourner votre OS. Les Mac Intel et Apple Silicon conviennent tous les deux.</p>
+<ol class="steps">
+<li><h3>Ouvrez le Terminal</h3><p>Appuyez sur <kbd>⌘</kbd> <kbd>Espace</kbd>, tapez <b>Terminal</b>, appuyez sur <kbd>Entrée</kbd>. Collez chaque commande ci-dessous et appuyez sur <kbd>Entrée</kbd>.</p></li>
+<li><h3>Installez les outils de développement d’Apple</h3><div class="code"><pre>xcode-select --install</pre></div><p>Une fenêtre s’ouvre : cliquez sur <b>Installer</b>. S’il est indiqué qu’ils sont déjà installés, pas de souci : continuez.</p></li>
+<li><h3>Installez Homebrew</h3><p>Homebrew installe des outils de développement en une commande. Passez cette étape si <code>brew --version</code> fonctionne déjà.</p>
+<div class="code"><pre>/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;</pre></div>
+<p>Il demande le mot de passe de votre Mac (rien ne s’affiche pendant la saisie : c’est normal). <b>À la fin, il affiche « Next steps » avec deux ou trois commandes : lancez-les</b>, puis fermez le Terminal et rouvrez-le.</p></li>
+<li><h3>Installez le compilateur et QEMU</h3><div class="code"><pre>brew install llvm lld qemu</pre></div><p>Comptez 5 à 10 minutes. <b>llvm</b> fournit <code>clang</code>, le compilateur C, <b>lld</b> l’éditeur de liens qui assemble les morceaux, et <b>qemu</b> le PC émulé.</p></li>
+<li><h3>Vérifiez que ça a marché</h3><div class="code"><pre>&quot;$(brew --prefix llvm)/bin/clang&quot; --version
+ls &quot;$(brew --prefix lld)/bin/ld.lld&quot;
+qemu-system-i386 --version</pre></div><p>Chaque ligne doit afficher une version ou un chemin, et non « command not found » ou « No such file ».</p></li>
+<li><h3>Récupérez le kit de départ et lancez-le</h3><div class="code"><pre>cd ~
+git clone https://github.com/alajemba-vik/build-your-own-os.git
+cp -R build-your-own-os/starter my-os
+cd my-os
+git init &amp;&amp; git add -A &amp;&amp; git commit -m &quot;Start from the starter&quot;
+make run</pre></div>
+<p>Une fenêtre QEMU s’ouvre avec <b>« Hello from my own operating system! »</b>. C’est votre OS. Pour l’arrêter, fermez la fenêtre ou appuyez sur <kbd>Ctrl</kbd> <kbd>C</kbd> dans le Terminal.</p>
+<p>La première fois, Git peut vous demander qui vous êtes. Lancez ces commandes avec votre nom et votre e-mail, puis refaites le commit :</p>
+<div class="code"><pre>git config --global user.name &quot;Votre Nom&quot;\ngit config --global user.email &quot;vous@example.com&quot;</pre></div></li>
+<li><h3>Ouvrez-le avec votre IA</h3><p>Ouvrez le dossier <code>my-os</code> dans votre éditeur ou votre outil d’IA. Par exemple :</p>
+<div class="code"><pre>code .        # VS Code (avec Copilot), ou : cursor .
+claude        # Claude Code, dans le dossier my-os
+codex         # Codex CLI, dans le dossier my-os</pre></div><p>Vous utilisez plutôt une IA de chat ? Ouvrez <code>my-os/AGENTS.md</code> (ou <a href="https://github.com/alajemba-vik/build-your-own-os/blob/main/starter/AGENTS.md">lisez-le sur GitHub</a>), copiez-le en entier et collez-le comme premier message.</p></li>
+</ol>
+<div class="note"><p><b>« command not found: brew »</b> : vous avez manqué les lignes « Next steps » à la fin de l’installation de Homebrew. Lancez <code>eval "$(/opt/homebrew/bin/brew shellenv)"</code> (Apple Silicon) ou <code>eval "$(/usr/local/bin/brew shellenv)"</code> (Intel), et ajoutez cette ligne à <code>~/.zprofile</code>.</p>
+<p><b>La fenêtre QEMU n’apparaît pas</b> : cherchez-la derrière le Terminal ou dans le Dock. Ou lancez <code>make run-text</code> pour voir l’écran dans le Terminal (pour quitter : <kbd>Échap</kbd> puis <kbd>2</kbd>, tapez <code>quit</code>, <kbd>Entrée</kbd>).</p>
+<p>D’autres solutions sur la <a href="help.html">page d’aide</a>.</p></div>
+
+<label class="done"><input type="checkbox"> J’ai terminé cette partie</label>
+<nav class="pager" aria-label="Précédent et suivant"><a class="btn" href="index.html">← Bienvenue</a><a class="btn btn-primary" href="setup-windows.html">Sur Windows →</a></nav>
+</main>
+</div>
+<footer>Réalisé par le <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> pour la séance du jeudi · <a href="https://github.com/alajemba-vik/build-your-own-os">Code sur GitHub</a> · Licence MIT · Une erreur ? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Dites-le-nous</a></footer>
+<script src="../assets/site.js?v=20261126a"></script>
+</body>
+</html>

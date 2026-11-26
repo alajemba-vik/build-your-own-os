@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapitre 6 : La mémoire · Construisez votre OS</title>
+<meta name="description" content="La carte mémoire multiboot, un allocateur de pages par bitmap et un kmalloc simple.">
+<meta property="og:title" content="Chapitre 6 : La mémoire · Construisez votre OS">
+<meta property="og:description" content="La carte mémoire multiboot, un allocateur de pages par bitmap et un kmalloc simple.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/chapter-6-memory.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/chapter-6-memory.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=20261126a">
+</head>
+<body data-page="ch6" data-root="../">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapitres</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Construisez votre OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <a class="lang-switch" href="../chapter-6-memory.html" hreflang="en" lang="en" title="Read in English" data-lang="en">EN</a>
+  <div class="os-switch" role="group" aria-label="Mon ordinateur">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapitres"><h2>Commencer</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Bienvenue<span class="tick"></span></a></li></ol><h2>Installer</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>Sur Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>Sur Windows<span class="tick"></span></a></li></ol><h2>Construire</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Démarrer et dire bonjour<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>Une vraie console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interruptions et plantages<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Minuteur et clavier<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>Un shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6" aria-current="page"><span class="num">6</span>La mémoire<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>Un bureau avec des fenêtres<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>À vous de jouer, et partagez-le<span class="tick"></span></a></li></ol><h2>Aide</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Bloqué ? Glossaire<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Chapitre 6 · environ 40 minutes</p>
+<h1>La <b>mémoire</b></h1>
+<p class="lede">Les programmes ont besoin de mémoire, et c’est l’OS qui la distribue. Vous découvrez combien de RAM a le PC, quelles parties sont libres, et vous écrivez un allocateur qui en distribue des morceaux.</p>
+
+<h2>L’<b>idée</b></h2>
+<ul>
+<li>Toutes les adresses ne sont pas de la RAM utilisable : le premier mégaoctet contient le BIOS et l’écran, certaines zones appartiennent au matériel, et votre noyau lui-même se trouve à 1 Mio. Le chargeur d’amorçage nous donne une <b>carte de la mémoire</b> : une liste de zones, chacune marquée utilisable (type 1) ou non. <code>boot.S</code> la transmet déjà à <code>kernel_main</code>.</li>
+<li>On découpe la mémoire en <b>pages</b> de 4 Kio et on tient un <b>bitmap</b> : un bit par page, 1 = utilisée, 0 = libre. 128 Mio font 32 768 pages : tout le bitmap tient dans 4 Kio.</li>
+<li><code>linker.ld</code> définit <code>kernel_end</code>, la première adresse après notre noyau, pour ne jamais distribuer notre propre code.</li>
+<li>Pour les petits objets, on ajoute un <b>tas</b> (heap) avec <code>kmalloc</code>. Le plus simple donne juste les octets libres suivants et ne les reprend jamais. Les vrais font mieux : ce peut être votre défi.</li>
+<li>Attention : diviser des nombres 64 bits sur un processeur 32 bits demande une bibliothèque d’aide que nous n’avons pas. Utilisez des décalages (<code>&gt;&gt; 12</code> veut dire « diviser par 4096 »).</li>
+</ul>
+
+<h2>À <b>vous</b></h2>
+<ol class="steps">
+<li><h3>L’allocateur de pages</h3><div class="prompt"><p>Chapitre 6. kernel_main reçoit le nombre magique multiboot et un pointeur vers les informations multiboot. Écris src/memory.c et memory.h : définis struct multiboot_info et la structure d’une entrée de la carte mémoire (packed). Dans memory_init : marque toutes les pages comme utilisées, puis libère les pages de chaque zone de type 1 de la carte mémoire (bit 6 des flags ; à défaut de carte, utilise mem_upper), puis marque de nouveau comme utilisés le premier Mio et le noyau (jusqu’au symbole kernel_end de linker.ld). Utilise un bitmap d’un bit par page de 4 Kio, pour 512 Mio au maximum. N’utilise pas de division 64 bits.</p><p>Ajoute page_alloc() (renvoie l’adresse d’une page libre, ou 0), page_free(), pages_total() et pages_used(). Ajoute un kmalloc « bump » sur un tas statique de 64 Kio, aligné sur 16 octets. Affiche « [ OK ] Memory: N MiB found » au démarrage, et ajoute les commandes de shell mem (les totaux) et alloc (prend une page et affiche son adresse).</p></div>
+<div class="code"><pre>make run</pre></div><p>Lancez <code>mem</code>, puis <code>alloc</code> plusieurs fois.</p></li>
+<li><h3>Jouez avec</h3><p>Dans le <code>Makefile</code>, remplacez <code>-m 128M</code> par <code>-m 256M</code> et relancez : <code>mem</code> doit suivre. Demandez à votre IA d’ajouter une commande <code>memmap</code> qui liste chaque zone de la carte mémoire avec son type.</p></li>
+<li><h3>Comprenez-la</h3><p>Demandez à votre IA : Que contient le premier mégaoctet ? Pourquoi les pages font-elles 4 Kio ? Qu’apporterait la <b>pagination</b> (paging, la prochaine grande étape d’un vrai OS) ?</p></li>
+</ol>
+<h2>Ça marche <b>quand</b></h2>
+<ul class="checks"><li>Le démarrage affiche environ <code>127 MiB found</code> avec <code>-m 128M</code>.</li><li><code>alloc</code> donne une nouvelle adresse à chaque fois, au-dessus de la fin de votre noyau.</li></ul>
+<div class="note"><p><b>« undefined symbol: __udivdi3 »</b> (ou <code>__umoddi3</code>) : une division 64 bits s’est glissée quelque part. Remplacez-la par un décalage, ou convertissez d’abord en 32 bits.</p></div>
+<details class="ref" data-files="os/src/memory.h os/src/memory.c os/linker.ld"><summary>Jeter un œil à la solution de référence (à ouvrir seulement si vous êtes bloqué)</summary><p>Voici le code de l’OS terminé, dans <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Le vôtre n’a pas besoin d’être identique : s’il fonctionne et que vous le comprenez, il est juste.</p></details>
+<h2>Enregistrez <b>votre progression</b></h2>
+<p>Prenez une photo de votre code avec Git, pour pouvoir revenir en arrière si une étape suivante casse quelque chose :</p>
+<div class="code"><pre>git add -A &amp;&amp; git commit -m &quot;Chapitre 6 : carte mémoire, allocateur de pages et kmalloc&quot;</pre></div>
+
+<label class="done"><input type="checkbox"> J’ai terminé cette partie</label>
+<nav class="pager" aria-label="Précédent et suivant"><a class="btn" href="chapter-5-shell.html">← Un shell</a><a class="btn btn-primary" href="chapter-7-desktop.html">Un bureau avec des fenêtres →</a></nav>
+</main>
+</div>
+<footer>Réalisé par le <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> pour la séance du jeudi · <a href="https://github.com/alajemba-vik/build-your-own-os">Code sur GitHub</a> · Licence MIT · Une erreur ? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Dites-le-nous</a></footer>
+<script src="../assets/site.js?v=20261126a"></script>
+</body>
+</html>

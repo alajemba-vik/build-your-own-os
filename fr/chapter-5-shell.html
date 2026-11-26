@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapitre 5 : Un shell · Construisez votre OS</title>
+<meta name="description" content="Un shell avec une table de commandes, le redémarrage et l’arrêt.">
+<meta property="og:title" content="Chapitre 5 : Un shell · Construisez votre OS">
+<meta property="og:description" content="Un shell avec une table de commandes, le redémarrage et l’arrêt.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/chapter-5-shell.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/chapter-5-shell.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=20261126a">
+</head>
+<body data-page="ch5" data-root="../">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapitres</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Construisez votre OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <a class="lang-switch" href="../chapter-5-shell.html" hreflang="en" lang="en" title="Read in English" data-lang="en">EN</a>
+  <div class="os-switch" role="group" aria-label="Mon ordinateur">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapitres"><h2>Commencer</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Bienvenue<span class="tick"></span></a></li></ol><h2>Installer</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>Sur Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>Sur Windows<span class="tick"></span></a></li></ol><h2>Construire</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Démarrer et dire bonjour<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>Une vraie console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interruptions et plantages<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Minuteur et clavier<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5" aria-current="page"><span class="num">5</span>Un shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>La mémoire<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>Un bureau avec des fenêtres<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>À vous de jouer, et partagez-le<span class="tick"></span></a></li></ol><h2>Aide</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Bloqué ? Glossaire<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Chapitre 5 · environ 30 minutes</p>
+<h1>Un <b>shell</b></h1>
+<p class="lede">La partie que les gens utilisent vraiment : une invite où vous tapez des commandes et où votre OS répond. Vous avez toutes les pièces ; il ne reste qu’à les assembler.</p>
+
+<h2>L’<b>idée</b></h2>
+<p>Un shell est une boucle : <b>afficher une invite → lire une ligne → la découper en une commande et ses arguments → trouver la commande → l’exécuter</b>. Une table de <code>{nom, texte d’aide, fonction}</code> rend l’ajout de commandes facile : une ligne chacune.</p>
+<p>Éteindre ou redémarrer l’ordinateur, c’est aussi du matériel : QEMU s’éteint quand on écrit <code>0x2000</code> sur le port <code>0x604</code>, et tout PC redémarre quand on envoie <code>0xFE</code> au contrôleur du clavier sur le port <code>0x64</code>.</p>
+
+<h2>À <b>vous</b></h2>
+<ol class="steps">
+<li><h3>Le shell</h3><div class="prompt"><p>Chapitre 5. Écris src/shell.c et shell.h avec shell_run() : affiche une invite en couleur avec le nom de l’OS, lis une ligne avec input_getc (gère Retour arrière, ignore les autres touches de contrôle, 127 caractères au maximum, affiche ce qui est tapé), sépare la commande de ses arguments, et cherche-la dans une table de commandes {nom, texte d’aide, fonction}.</p><p>Commandes : help (liste toutes les commandes avec leur aide, alignées), clear, echo &lt;texte&gt;, about (nom de l’OS, version, temps écoulé), uptime (hh:mm:ss), color &lt;nom&gt; (change la couleur du texte), reboot (contrôleur du clavier, 0xFE sur le port 0x64), shutdown (outw(0x604, 0x2000) pour QEMU, puis arrêt) et crash (exécute ud2 pour afficher l’écran de panique). Une commande inconnue affiche un court message. Garde les noms des commandes et les messages de l’OS en anglais.</p><p>Mets le nom et la version de l’OS dans src/os.h. kernel_main appelle shell_run() après avoir tout préparé.</p></div>
+<div class="code"><pre>make run</pre></div><p>Tapez <code>help</code>, puis essayez chaque commande.</p></li>
+<li><h3>Inventez vos propres commandes</h3><p>Choisissez-en une ou deux, et demandez-les à votre IA une par une :</p>
+<ul><li><b>calc 12 * 7</b> : une calculatrice pour les nombres entiers.</li><li><b>Un historique des commandes</b> avec la flèche du haut.</li><li><b>guess</b> : un jeu du nombre mystère, avec les ticks du minuteur comme hasard.</li><li><b>banner hello</b> : du texte en grosses lettres.</li><li><b>time</b> : la vraie date et l’heure, lues dans l’horloge du PC (la RTC du CMOS, ports <code>0x70</code>/<code>0x71</code>).</li></ul></li>
+</ol>
+<h2>Ça marche <b>quand</b></h2>
+<ul class="checks"><li><code>help</code> liste vos commandes et chacune fonctionne.</li><li><code>shutdown</code> ferme QEMU ; <code>crash</code> affiche l’écran de panique.</li><li>Vous avez ajouté au moins une commande de votre cru.</li></ul>
+<details class="ref" data-files="os/src/shell.c os/src/os.h os/src/kernel.c"><summary>Jeter un œil à la solution de référence (à ouvrir seulement si vous êtes bloqué)</summary><p>Voici le code de l’OS terminé, dans <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Le vôtre n’a pas besoin d’être identique : s’il fonctionne et que vous le comprenez, il est juste.</p></details>
+<h2>Enregistrez <b>votre progression</b></h2>
+<p>Prenez une photo de votre code avec Git, pour pouvoir revenir en arrière si une étape suivante casse quelque chose :</p>
+<div class="code"><pre>git add -A &amp;&amp; git commit -m &quot;Chapitre 5 : un shell avec des commandes&quot;</pre></div>
+
+<label class="done"><input type="checkbox"> J’ai terminé cette partie</label>
+<nav class="pager" aria-label="Précédent et suivant"><a class="btn" href="chapter-4-keyboard.html">← Minuteur et clavier</a><a class="btn btn-primary" href="chapter-6-memory.html">La mémoire →</a></nav>
+</main>
+</div>
+<footer>Réalisé par le <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> pour la séance du jeudi · <a href="https://github.com/alajemba-vik/build-your-own-os">Code sur GitHub</a> · Licence MIT · Une erreur ? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Dites-le-nous</a></footer>
+<script src="../assets/site.js?v=20261126a"></script>
+</body>
+</html>

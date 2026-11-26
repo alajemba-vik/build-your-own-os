@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapitre 2 : Une vraie console · Construisez votre OS</title>
+<meta name="description" content="Une console texte VGA avec défilement et couleurs, kprintf et le port série.">
+<meta property="og:title" content="Chapitre 2 : Une vraie console · Construisez votre OS">
+<meta property="og:description" content="Une console texte VGA avec défilement et couleurs, kprintf et le port série.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/chapter-2-console.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/chapter-2-console.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=20261126a">
+</head>
+<body data-page="ch2" data-root="../">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapitres</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Construisez votre OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <a class="lang-switch" href="../chapter-2-console.html" hreflang="en" lang="en" title="Read in English" data-lang="en">EN</a>
+  <div class="os-switch" role="group" aria-label="Mon ordinateur">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapitres"><h2>Commencer</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Bienvenue<span class="tick"></span></a></li></ol><h2>Installer</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>Sur Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>Sur Windows<span class="tick"></span></a></li></ol><h2>Construire</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Démarrer et dire bonjour<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2" aria-current="page"><span class="num">2</span>Une vraie console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interruptions et plantages<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Minuteur et clavier<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>Un shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>La mémoire<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>Un bureau avec des fenêtres<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>À vous de jouer, et partagez-le<span class="tick"></span></a></li></ol><h2>Aide</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Bloqué ? Glossaire<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Chapitre 2 · environ 30 minutes</p>
+<h1>Une vraie <b>console</b></h1>
+<p class="lede">Écrire des lettres à des endroits fixes, on s’en lasse vite. Vous construisez une console comme celle d’un terminal : un curseur, des retours à la ligne, du défilement, des couleurs et votre propre <code>printf</code>. Et une deuxième sortie, le port série, qui s’affiche dans votre terminal et facilite beaucoup le débogage.</p>
+
+<h2>L’<b>idée</b></h2>
+<ul>
+<li>La console retient une <b>ligne et une colonne</b>. Chaque caractère s’écrit là et fait avancer le curseur. <code>\n</code> passe à la ligne suivante.</li>
+<li>Quand la dernière ligne est pleine, on <b>fait défiler</b> : on recopie chaque ligne une ligne plus haut et on efface celle du bas.</li>
+<li>Le curseur clignotant se déplace en parlant à la puce VGA par les <b>ports d’E/S</b> <code>0x3D4</code> et <code>0x3D5</code>. Les ports sont un second espace d’adresses réservé au matériel, utilisé avec les instructions <code>outb</code> et <code>inb</code>.</li>
+<li><b>kprintf</b> est notre <code>printf</code> (le k veut dire kernel). Il utilise <code>stdarg.h</code>, que le compilateur nous fournit même sans bibliothèque C.</li>
+<li>Le <b>port série</b> (COM1, port <code>0x3F8</code>) envoie les octets un par un. <code>make run</code> le relie à votre terminal : chaque ligne affichée par votre OS y apparaît aussi, et vous pouvez la copier pour votre IA.</li>
+</ul>
+
+<h2>À <b>vous</b></h2>
+<ol class="steps">
+<li><h3>Construisez la console</h3><div class="prompt"><p>Chapitre 2. Crée src/io.h avec les fonctions outb/inb/outw (assembleur en ligne). Puis src/console.c et src/console.h : une console texte sur l’écran VGA avec une position de curseur, retour à la ligne, retour arrière, tabulation, défilement quand l’écran est plein, couleurs (un enum des 16 couleurs VGA) et déplacement du curseur matériel clignotant.</p><p>Ajoute src/serial.c pour COM1 (0x3F8), pour que chaque caractère affiché sur la console soit aussi envoyé sur le port série (envoie \r avant \n).</p><p>Ajoute src/printf.c avec kprintf qui gère %s %c %d %u %x %p %%, une largeur comme %5d, le remplissage par des zéros comme %02u, et l’alignement à gauche comme %-10s. Ajoute aussi un ksnprintf qui écrit dans un tampon. Et src/string.c avec memset, memcpy, memmove, strlen, strcmp, strncmp, car nous n’avons pas de bibliothèque C.</p><p>Mets à jour kernel_main pour effacer l’écran, afficher un titre en couleur, quelques lignes avec des nombres (négatifs, hexadécimaux), puis 30 lignes numérotées pour tester le défilement. Laisse les textes affichés par l’OS en anglais.</p></div>
+<div class="code"><pre>make run</pre></div></li>
+<li><h3>Comprenez-la</h3><p>Demandez à votre IA :</p><ul><li>Comment <code>va_list</code> fonctionne-t-il sans bibliothèque C ?</li><li>Pourquoi écrit-on <code>volatile</code> pour la mémoire de l’écran ?</li><li>Pourquoi le compilateur peut-il appeler <code>memset</code> alors que je ne l’ai jamais écrit ?</li></ul></li>
+<li><h3>Personnalisez-la</h3><p>Affichez au démarrage un logo en ASCII art, en couleur, avec le nom de votre OS. Demandez-en un à votre IA (moins de 7 lignes et 60 colonnes), et qu’elle échappe les barres obliques inverses.</p></li>
+</ol>
+
+<h2>Ça marche <b>quand</b></h2>
+<ul class="checks"><li>Les 30 lignes défilent et les dernières sont visibles.</li><li><code>kprintf("%d %x %05u", -42, 255, 7)</code> affiche <code>-42 ff 00007</code>.</li><li>Le même texte apparaît dans votre terminal (le port série).</li></ul>
+<div class="note"><p><b>« undefined symbol: memset »</b> (ou memcpy) : le compilateur s’en sert pour les grosses copies, et nous n’avons pas de bibliothèque C. Vérifiez que <code>string.c</code> existe et qu’il est compilé.</p><p><b>Des symboles bizarres à la place des lettres</b> : chaque case de l’écran vaut <code>caractère | (couleur &lt;&lt; 8)</code>. Vérifiez que le caractère est d’abord converti en <code>uint8_t</code>.</p></div>
+<details class="ref" data-files="os/src/io.h os/src/console.h os/src/console.c os/src/serial.c os/src/printf.c os/src/string.c"><summary>Jeter un œil à la solution de référence (à ouvrir seulement si vous êtes bloqué)</summary><p>Voici le code de l’OS terminé, dans <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Le vôtre n’a pas besoin d’être identique : s’il fonctionne et que vous le comprenez, il est juste.</p></details>
+<h2>Enregistrez <b>votre progression</b></h2>
+<p>Prenez une photo de votre code avec Git, pour pouvoir revenir en arrière si une étape suivante casse quelque chose :</p>
+<div class="code"><pre>git add -A &amp;&amp; git commit -m &quot;Chapitre 2 : console, kprintf et port série&quot;</pre></div>
+
+<label class="done"><input type="checkbox"> J’ai terminé cette partie</label>
+<nav class="pager" aria-label="Précédent et suivant"><a class="btn" href="chapter-1-boot.html">← Démarrer et dire bonjour</a><a class="btn btn-primary" href="chapter-3-interrupts.html">Interruptions et plantages →</a></nav>
+</main>
+</div>
+<footer>Réalisé par le <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> pour la séance du jeudi · <a href="https://github.com/alajemba-vik/build-your-own-os">Code sur GitHub</a> · Licence MIT · Une erreur ? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Dites-le-nous</a></footer>
+<script src="../assets/site.js?v=20261126a"></script>
+</body>
+</html>

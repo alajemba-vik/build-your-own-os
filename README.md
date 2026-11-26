@@ -12,7 +12,7 @@ a memory allocator and a small desktop with windows. It runs in QEMU, an emulate
 |---|---|
 | `starter/` | Copy this to begin: a kernel that boots and says hello, a Makefile, and [`AGENTS.md`](starter/AGENTS.md), the brief your AI reads |
 | `AGENTS.md` | Instructions for an AI working on this tutorial repository itself |
-| `tools/build_pages.py` | Writes the tutorial pages: edit the text there, then run it |
+| `tools/` | `build_pages.py` writes the tutorial pages in English and French (`fr/`): edit the text in `content_en.py` / `content_fr.py`, then run it |
 | `os/` | The finished reference OS (all chapters). Peek at it when you are stuck |
 | `index.html`, `setup-*.html`, `chapter-*.html`, `assets/` | The tutorial website (GitHub Pages) |
 | `tools/boot-test.sh` | Boots the OS in QEMU and checks the shell answers (run by GitHub Actions on Linux and macOS) |

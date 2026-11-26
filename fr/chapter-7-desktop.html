@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapitre 7 : Un bureau avec des fenêtres · Construisez votre OS</title>
+<meta name="description" content="Un bureau en mode texte avec des fenêtres mobiles, un double tampon et une boucle d’événements.">
+<meta property="og:title" content="Chapitre 7 : Un bureau avec des fenêtres · Construisez votre OS">
+<meta property="og:description" content="Un bureau en mode texte avec des fenêtres mobiles, un double tampon et une boucle d’événements.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/chapter-7-desktop.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/chapter-7-desktop.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=20261126a">
+</head>
+<body data-page="ch7" data-root="../">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapitres</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Construisez votre OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <a class="lang-switch" href="../chapter-7-desktop.html" hreflang="en" lang="en" title="Read in English" data-lang="en">EN</a>
+  <div class="os-switch" role="group" aria-label="Mon ordinateur">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapitres"><h2>Commencer</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Bienvenue<span class="tick"></span></a></li></ol><h2>Installer</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>Sur Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>Sur Windows<span class="tick"></span></a></li></ol><h2>Construire</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Démarrer et dire bonjour<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>Une vraie console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interruptions et plantages<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Minuteur et clavier<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>Un shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>La mémoire<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7" aria-current="page"><span class="num">7</span>Un bureau avec des fenêtres<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>À vous de jouer, et partagez-le<span class="tick"></span></a></li></ol><h2>Aide</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Bloqué ? Glossaire<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Chapitre 7 · environ 40 minutes</p>
+<h1>Un bureau <b>avec des fenêtres</b></h1>
+<p class="lede">Le plus amusant. Un bureau avec une barre en haut, une horloge et deux fenêtres que vous pouvez déplacer, le tout dessiné avec des caractères texte, comme les premières versions de nombreux systèmes célèbres.</p>
+<pre class="screen" aria-label="Le bureau : un fond bleu texturé, une barre en haut et deux fenêtres"><span style="background:#aaa;color:#000"> MyOS Desktop                                                    up 00:02:14 </span>
+<span style="color:#0aa;background:#00a">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
+<span style="color:#0aa;background:#00a">░░░░</span><span style="background:#aaa;color:#000">╔════════════<span style="background:#0aa"> Welcome </span>═════════════╗</span><span style="color:#0aa;background:#00a">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
+<span style="color:#0aa;background:#00a">░░░░</span><span style="background:#aaa;color:#000">║ Hello! This desktop runs on      ║</span><span style="background:#000"> </span><span style="color:#0aa;background:#00a">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
+<span style="color:#0aa;background:#00a">░░░░</span><span style="background:#aaa;color:#000">║ MyOS 0.1, an OS you built        ║</span><span style="background:#000"> </span><span style="color:#0aa;background:#00a">░░░░░</span><span style="background:#aaa;color:#000">┌─────────── System ──────────┐</span><span style="color:#0aa;background:#00a">░░</span>
+<span style="color:#0aa;background:#00a">░░░░</span><span style="background:#aaa;color:#000">╚══════════════════════════════════╝</span><span style="background:#000"> </span><span style="color:#0aa;background:#00a">░░░░░</span><span style="background:#aaa;color:#000">│ Uptime    00:02:14          │</span><span style="color:#0aa;background:#00a">░░</span>
+<span style="background:#aaa;color:#000"> Tab: next window   Arrows or WASD: move it   Esc: back to the shell           </span></pre>
+<p><small>Une esquisse raccourcie du vrai bureau.</small></p>
+
+<h2>L’<b>idée</b></h2>
+<ul>
+<li>La police VGA (code page 437) a des <b>caractères de dessin de boîtes</b> : <code>0xC9</code> est ╔, <code>0xCD</code> est ═, <code>0xB0</code> est ░… De quoi dessiner des fenêtres.</li>
+<li><b>Double tampon</b> (double buffering) : on dessine d’abord toute l’image dans un tableau, puis on la copie d’un coup dans <code>0xB8000</code>. Dessiner directement à l’écran ferait clignoter l’image.</li>
+<li>Une <b>boucle d’événements</b> : on regarde s’il y a une touche sans attendre (<code>input_poll</code>), on met à jour l’état (quelle fenêtre est active, où elle se trouve), on redessine, et on dort avec <code>hlt</code> quand il n’y a rien à faire. On redessine quelques fois par seconde pour que l’horloge avance.</li>
+<li>On dessine d’abord la fenêtre inactive et la fenêtre active en dernier, pour qu’elle soit au-dessus.</li>
+</ul>
+
+<h2>À <b>vous</b></h2>
+<ol class="steps">
+<li><h3>Le bureau</h3><div class="prompt"><p>Chapitre 7. Ajoute src/desktop.c avec desktop_run(), lancée par une nouvelle commande de shell « desktop ». Dessine dans un tampon uint16_t de la taille de l’écran, puis copie-le d’un coup dans la mémoire VGA. Sauvegarde l’écran avant et restaure-le en sortant.</p><p>Dessine : un fond texturé (caractère 0xB0), une barre en haut avec le nom de l’OS à gauche et le temps écoulé à droite, une barre en bas avec les touches, et deux fenêtres avec une ombre. Utilise des doubles traits et un titre cyan pour la fenêtre active, des traits simples pour l’autre. Une fenêtre affiche un texte de bienvenue, l’autre des informations système en direct : temps écoulé, mémoire, pages libres et nombre de touches appuyées. Ajoute keyboard_presses() à keyboard.c pour cela.</p><p>Touches : Tab change de fenêtre active, les flèches ou WASD la déplacent (en la gardant à l’écran), Échap revient au shell. Utilise input_poll et redessine à chaque touche et 4 fois par seconde, dors avec hlt sinon. Cache le curseur clignotant tant que le bureau est ouvert. Garde les textes affichés par l’OS en anglais.</p></div>
+<div class="code"><pre>make run</pre></div><p>Tapez <code>desktop</code>. Appuyez sur <kbd>Tab</kbd>, déplacez les fenêtres avec les flèches, <kbd>Échap</kbd> pour revenir.</p></li>
+<li><h3>Personnalisez-le</h3><p>Demandez un changement à la fois : vos propres couleurs, une troisième fenêtre (une horloge, un bloc-notes, une liste de tâches), un « menu Démarrer » sur une touche, ou un petit jeu dans une fenêtre. Un <b>snake</b> s’y prête bien : il n’a besoin que des flèches, du minuteur et de l’écran.</p></li>
+</ol>
+<div class="note"><p><b>Vous utilisez <code>make run-serial</code> ?</b> Le bureau est dessiné à l’écran, pas envoyé sur le port série : vous ne le verrez pas là. Utilisez <code>make run</code> ou <code>make run-text</code>.</p></div>
+<h2>Ça marche <b>quand</b></h2>
+<ul class="checks"><li>L’horloge de la barre du haut avance toute seule.</li><li>Tab et les flèches fonctionnent, et les fenêtres restent à l’écran.</li><li>Échap ramène le shell exactement comme il était.</li></ul>
+<details class="ref" data-files="os/src/desktop.c os/src/shell.h"><summary>Jeter un œil à la solution de référence (à ouvrir seulement si vous êtes bloqué)</summary><p>Voici le code de l’OS terminé, dans <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Le vôtre n’a pas besoin d’être identique : s’il fonctionne et que vous le comprenez, il est juste.</p></details>
+<h2>Enregistrez <b>votre progression</b></h2>
+<p>Prenez une photo de votre code avec Git, pour pouvoir revenir en arrière si une étape suivante casse quelque chose :</p>
+<div class="code"><pre>git add -A &amp;&amp; git commit -m &quot;Chapitre 7 : un bureau en mode texte avec des fenêtres&quot;</pre></div>
+
+<label class="done"><input type="checkbox"> J’ai terminé cette partie</label>
+<nav class="pager" aria-label="Précédent et suivant"><a class="btn" href="chapter-6-memory.html">← La mémoire</a><a class="btn btn-primary" href="chapter-8-make-it-yours.html">À vous de jouer, et partagez-le →</a></nav>
+</main>
+</div>
+<footer>Réalisé par le <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> pour la séance du jeudi · <a href="https://github.com/alajemba-vik/build-your-own-os">Code sur GitHub</a> · Licence MIT · Une erreur ? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Dites-le-nous</a></footer>
+<script src="../assets/site.js?v=20261126a"></script>
+</body>
+</html>

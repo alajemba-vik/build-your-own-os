@@ -1,5 +1,11 @@
-/* Build your own OS: Mac/Windows switch, copy buttons, reference code, progress. No tracking. */
+/* Build your own OS: English/French, Mac/Windows switch, copy buttons, reference code, progress. No tracking. */
 (function () {
+  const FR = document.documentElement.lang === 'fr';
+  const L = FR ? { copy: 'Copier', copied: 'Copié', manual: 'Sélectionnez et copiez', loading: 'Chargement…',
+                   failed: 'Impossible de le charger ici.', open: 'Ouvrir', onGitHub: 'sur GitHub', finished: 'terminé' }
+               : { copy: 'Copy', copied: 'Copied', manual: 'Select and copy', loading: 'Loading…',
+                   failed: "Couldn't load it here.", open: 'Open', onGitHub: 'on GitHub', finished: 'finished' };
+  const root = document.body.dataset.root || '';   /* '' for English pages, '../' for French pages in fr/ */
   const store = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } },
                   set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 
@@ -12,6 +18,13 @@
   setOS(store.get('byos.os') || guess);
   document.querySelectorAll('.os-switch button').forEach(b => b.addEventListener('click', () => setOS(b.dataset.os)));
 
+  /* English / French: remember the choice, and open English pages in French for someone who chose French */
+  const sw = document.querySelector('.lang-switch');
+  if (sw) {
+    sw.addEventListener('click', () => store.set('byos.lang', sw.dataset.lang));
+    if (!FR && store.get('byos.lang') === 'fr') location.replace(sw.href + location.hash);
+  }
+
   /* mobile menu */
   const menu = document.querySelector('.menu-btn');
   if (menu) menu.addEventListener('click', () => {
@@ -21,11 +34,11 @@
   /* copy buttons */
   function addCopy(box, getText) {
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'copy'; b.textContent = 'Copy';
+    b.type = 'button'; b.className = 'copy'; b.textContent = L.copy;
     b.addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(getText()); b.textContent = 'Copied'; }
-      catch (e) { b.textContent = 'Select and copy'; }
-      setTimeout(() => { b.textContent = 'Copy'; }, 1600);
+      try { await navigator.clipboard.writeText(getText()); b.textContent = L.copied; }
+      catch (e) { b.textContent = L.manual; }
+      setTimeout(() => { b.textContent = L.copy; }, 1600);
     });
     box.appendChild(b);
   }
@@ -40,13 +53,13 @@
       d.dataset.loaded = '1';
       for (const path of d.dataset.files.split(/\s+/)) {
         const box = document.createElement('div'); box.className = 'code file';
-        box.innerHTML = `<span class="label">${esc(path)}</span><pre>Loading…</pre>`;
+        box.innerHTML = `<span class="label">${esc(path)}</span><pre>${L.loading}</pre>`;
         d.appendChild(box);
         try {
-          const r = await fetch(path); if (!r.ok) throw new Error(r.status);
+          const r = await fetch(root + path); if (!r.ok) throw new Error(r.status);
           box.querySelector('pre').innerHTML = esc(await r.text());
         } catch (e) {
-          box.querySelector('pre').innerHTML = `Couldn't load it here. <a href="https://github.com/alajemba-vik/build-your-own-os/blob/main/${esc(path)}">Open ${esc(path)} on GitHub</a>`;
+          box.querySelector('pre').innerHTML = `${L.failed} <a href="https://github.com/alajemba-vik/build-your-own-os/blob/main/${esc(path)}">${L.open} ${esc(path)} ${L.onGitHub}</a>`;
         }
         addCopy(box, () => box.querySelector('pre').innerText);
       }
@@ -65,7 +78,7 @@
     document.querySelectorAll('nav.side a[data-page]').forEach(a => {
       const t = a.querySelector('.tick');
       if (t) t.textContent = done[a.dataset.page] ? '✓' : '';
-      if (t) t.setAttribute('aria-label', done[a.dataset.page] ? 'finished' : '');
+      if (t) t.setAttribute('aria-label', done[a.dataset.page] ? L.finished : '');
     });
   }
   paintTicks();

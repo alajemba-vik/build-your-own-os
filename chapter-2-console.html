@@ -7,18 +7,21 @@
 <meta name="description" content="A VGA text console with scrolling and colours, kprintf, and the serial port.">
 <meta property="og:title" content="Chapter 2: A real console · Build your own OS">
 <meta property="og:description" content="A VGA text console with scrolling and colours, kprintf, and the serial port.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/chapter-2-console.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/chapter-2-console.html">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=20261125c">
+<link rel="stylesheet" href="assets/site.css?v=20261126a">
 </head>
-<body data-page="ch2">
+<body data-page="ch2" data-root="">
 <a class="skip" href="#main">Skip to the content</a>
 <header class="top">
   <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapters</button>
   <a class="brand" href="index.html"><span class="chip-os">OS</span> Build your own OS <span class="long">· aivancity Tech Club</span></a>
   <span class="spacer"></span>
+  <a class="lang-switch" href="fr/chapter-2-console.html" hreflang="fr" lang="fr" title="Lire en français" data-lang="fr">FR</a>
   <div class="os-switch" role="group" aria-label="My computer">
     <button type="button" data-os="mac" aria-pressed="false">macOS</button>
     <button type="button" data-os="win" aria-pressed="false">Windows</button>
@@ -28,41 +31,40 @@
 <nav class="side" id="side" aria-label="Chapters"><h2>Start</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Welcome<span class="tick"></span></a></li></ol><h2>Set up</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>On a Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>On Windows<span class="tick"></span></a></li></ol><h2>Build it</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Boot and say hello<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2" aria-current="page"><span class="num">2</span>A real console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interrupts and crashes<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Timer and keyboard<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>A shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>Memory<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>A desktop with windows<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>Make it yours and share it<span class="tick"></span></a></li></ol><h2>Help</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Stuck? Glossary<span class="tick"></span></a></li></ol></nav>
 <main id="main">
 
-<p class="eyebrow">Chapter 2 · about 30 minutes</p>
-<h1>A real <b>console</b></h1>
-<p class="lede">Writing letters at fixed places gets old fast. You build a console like a terminal's: a cursor, new lines, scrolling, colours, and your own <code>printf</code>. And a second output, the serial port, that shows up in your terminal and makes debugging much easier.</p>
+    <p class="eyebrow">Chapter 2 · about 30 minutes</p>
+    <h1>A real <b>console</b></h1>
+    <p class="lede">Writing letters at fixed places gets old fast. You build a console like a terminal's: a cursor, new lines, scrolling, colours, and your own <code>printf</code>. And a second output, the serial port, that shows up in your terminal and makes debugging much easier.</p>
 
-<h2>The <b>idea</b></h2>
-<ul>
-<li>The console remembers a <b>row and column</b>. Each character goes there and moves the cursor on. <code>\n</code> goes to the next row.</li>
-<li>When the last row is full, you <b>scroll</b>: copy every row one up and clear the bottom one.</li>
-<li>The blinking cursor is moved by talking to the VGA chip through <b>I/O ports</b> <code>0x3D4</code> and <code>0x3D5</code>. Ports are a second address space for hardware, used with the <code>outb</code> and <code>inb</code> instructions.</li>
-<li><b>kprintf</b> is our <code>printf</code> (the k is for kernel). It uses <code>stdarg.h</code>, which the compiler gives us even without a C library.</li>
-<li>The <b>serial port</b> (COM1, port <code>0x3F8</code>) sends bytes one by one. <code>make run</code> connects it to your terminal, so every line your OS prints also appears there, and you can copy it into your AI.</li>
-</ul>
+    <h2>The <b>idea</b></h2>
+    <ul>
+    <li>The console remembers a <b>row and column</b>. Each character goes there and moves the cursor on. <code>\n</code> goes to the next row.</li>
+    <li>When the last row is full, you <b>scroll</b>: copy every row one up and clear the bottom one.</li>
+    <li>The blinking cursor is moved by talking to the VGA chip through <b>I/O ports</b> <code>0x3D4</code> and <code>0x3D5</code>. Ports are a second address space for hardware, used with the <code>outb</code> and <code>inb</code> instructions.</li>
+    <li><b>kprintf</b> is our <code>printf</code> (the k is for kernel). It uses <code>stdarg.h</code>, which the compiler gives us even without a C library.</li>
+    <li>The <b>serial port</b> (COM1, port <code>0x3F8</code>) sends bytes one by one. <code>make run</code> connects it to your terminal, so every line your OS prints also appears there, and you can copy it into your AI.</li>
+    </ul>
 
-<h2>Do <b>it</b></h2>
-<ol class="steps">
-<li><h3>Build the console</h3><div class="prompt"><p>Chapter 2. Create src/io.h with outb/inb/outw helpers (inline assembly). Then src/console.c and src/console.h: a text console on the VGA screen with a cursor position, newline, backspace, tab, scrolling when the screen is full, colours (an enum of the 16 VGA colours) and moving the blinking hardware cursor.</p><p>Add src/serial.c for COM1 (0x3F8) so every character printed on the console is also sent to the serial port (send \r before \n).</p><p>Add src/printf.c with kprintf supporting %s %c %d %u %x %p %%, a width like %5d, zero padding like %02u, and left alignment like %-10s. Also a ksnprintf that writes into a buffer. And src/string.c with memset, memcpy, memmove, strlen, strcmp, strncmp, because we have no C library.</p><p>Update kernel_main to clear the screen, print a coloured title, a few lines with numbers (negative, hex), then 30 numbered lines to test scrolling.</p></div>
-<div class="code"><pre>make run</pre></div></li>
-<li><h3>Understand it</h3><p>Ask your AI:</p><ul><li>How does <code>va_list</code> work when there is no C library?</li><li>Why do we write <code>volatile</code> for the screen memory?</li><li>Why might the compiler call <code>memset</code> even if I never wrote it?</li></ul></li>
-<li><h3>Make it yours</h3><p>Print a coloured ASCII-art logo with your OS's name when it starts. Ask your AI to make one (keep it under 7 lines and 60 columns), and to escape the backslashes.</p></li>
-</ol>
+    <h2>Do <b>it</b></h2>
+    <ol class="steps">
+    <li><h3>Build the console</h3><div class="prompt"><p>Chapter 2. Create src/io.h with outb/inb/outw helpers (inline assembly). Then src/console.c and src/console.h: a text console on the VGA screen with a cursor position, newline, backspace, tab, scrolling when the screen is full, colours (an enum of the 16 VGA colours) and moving the blinking hardware cursor.</p><p>Add src/serial.c for COM1 (0x3F8) so every character printed on the console is also sent to the serial port (send \r before \n).</p><p>Add src/printf.c with kprintf supporting %s %c %d %u %x %p %%, a width like %5d, zero padding like %02u, and left alignment like %-10s. Also a ksnprintf that writes into a buffer. And src/string.c with memset, memcpy, memmove, strlen, strcmp, strncmp, because we have no C library.</p><p>Update kernel_main to clear the screen, print a coloured title, a few lines with numbers (negative, hex), then 30 numbered lines to test scrolling.</p></div>
+    <div class="code"><pre>make run</pre></div></li>
+    <li><h3>Understand it</h3><p>Ask your AI:</p><ul><li>How does <code>va_list</code> work when there is no C library?</li><li>Why do we write <code>volatile</code> for the screen memory?</li><li>Why might the compiler call <code>memset</code> even if I never wrote it?</li></ul></li>
+    <li><h3>Make it yours</h3><p>Print a coloured ASCII-art logo with your OS's name when it starts. Ask your AI to make one (keep it under 7 lines and 60 columns), and to escape the backslashes.</p></li>
+    </ol>
 
-<h2>It works <b>when</b></h2>
-<ul class="checks"><li>The 30 lines scroll and the last ones are visible.</li><li><code>kprintf("%d %x %05u", -42, 255, 7)</code> prints <code>-42 ff 00007</code>.</li><li>The same text appears in your terminal (the serial port).</li></ul>
-<div class="note"><p><b>"undefined symbol: memset"</b> (or memcpy): the compiler uses them for big copies, and we have no C library. Make sure <code>string.c</code> exists and is built.</p><p><b>Strange symbols instead of letters</b>: each screen cell is <code>character | (colour &lt;&lt; 8)</code>. Check the character is cast to <code>uint8_t</code> first.</p></div>
-<details class="ref" data-files="os/src/io.h os/src/console.h os/src/console.c os/src/serial.c os/src/printf.c os/src/string.c"><summary>Peek at the reference solution (open it only when you are stuck)</summary><p>This is the code from the finished OS in <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Yours does not have to look the same: if it works and you understand it, it is right.</p></details>
-<h2>Save <b>your progress</b></h2>
+    <h2>It works <b>when</b></h2>
+    <ul class="checks"><li>The 30 lines scroll and the last ones are visible.</li><li><code>kprintf("%d %x %05u", -42, 255, 7)</code> prints <code>-42 ff 00007</code>.</li><li>The same text appears in your terminal (the serial port).</li></ul>
+    <div class="note"><p><b>"undefined symbol: memset"</b> (or memcpy): the compiler uses them for big copies, and we have no C library. Make sure <code>string.c</code> exists and is built.</p><p><b>Strange symbols instead of letters</b>: each screen cell is <code>character | (colour &lt;&lt; 8)</code>. Check the character is cast to <code>uint8_t</code> first.</p></div>
+    <details class="ref" data-files="os/src/io.h os/src/console.h os/src/console.c os/src/serial.c os/src/printf.c os/src/string.c"><summary>Peek at the reference solution (open it only when you are stuck)</summary><p>This is the code from the finished OS in <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Yours does not have to look the same: if it works and you understand it, it is right.</p></details>
+    <h2>Save <b>your progress</b></h2>
 <p>Save a snapshot with Git, so you can always go back if a later step breaks something:</p>
 <div class="code"><pre>git add -A &amp;&amp; git commit -m &quot;Chapter 2: console, kprintf and serial port&quot;</pre></div>
-
+    
 <label class="done"><input type="checkbox"> I finished this part</label>
 <nav class="pager" aria-label="Previous and next"><a class="btn" href="chapter-1-boot.html">← Boot and say hello</a><a class="btn btn-primary" href="chapter-3-interrupts.html">Interrupts and crashes →</a></nav>
 </main>
 </div>
-<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session ·
-<a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
-<script src="assets/site.js?v=20261125c"></script>
+<footer>Made by the <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> for the Thursday build session · <a href="https://github.com/alajemba-vik/build-your-own-os">Code on GitHub</a> · MIT licence · Found a mistake? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Tell us</a></footer>
+<script src="assets/site.js?v=20261126a"></script>
 </body>
 </html>

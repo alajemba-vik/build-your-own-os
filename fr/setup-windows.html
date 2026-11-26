@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installer sur Windows · Construisez votre OS</title>
+<meta name="description" content="Installez WSL, Ubuntu, clang, lld et QEMU sous Windows, et démarrez l’OS de départ.">
+<meta property="og:title" content="Installer sur Windows · Construisez votre OS">
+<meta property="og:description" content="Installez WSL, Ubuntu, clang, lld et QEMU sous Windows, et démarrez l’OS de départ.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/setup-windows.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/setup-windows.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=20261126a">
+</head>
+<body data-page="setup-windows" data-root="../">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapitres</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Construisez votre OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <a class="lang-switch" href="../setup-windows.html" hreflang="en" lang="en" title="Read in English" data-lang="en">EN</a>
+  <div class="os-switch" role="group" aria-label="Mon ordinateur">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapitres"><h2>Commencer</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Bienvenue<span class="tick"></span></a></li></ol><h2>Installer</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>Sur Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows" aria-current="page"><span class="num"></span>Sur Windows<span class="tick"></span></a></li></ol><h2>Construire</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Démarrer et dire bonjour<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>Une vraie console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interruptions et plantages<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Minuteur et clavier<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>Un shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>La mémoire<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>Un bureau avec des fenêtres<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>À vous de jouer, et partagez-le<span class="tick"></span></a></li></ol><h2>Aide</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Bloqué ? Glossaire<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Installation · environ 20 minutes</p>
+<h1>Préparez <b>votre PC Windows</b></h1>
+<p class="lede">Les outils pour écrire un OS s’utilisent le plus facilement sous Linux, et Windows peut faire tourner Linux grâce à <b>WSL</b> (Windows Subsystem for Linux). Vous installez Ubuntu une fois, puis tout se passe dans son terminal. Windows 11 est l’idéal ; Windows 10 fonctionne aussi.</p>
+<ol class="steps">
+<li><h3>Installez WSL et Ubuntu</h3><p>Ouvrez le menu Démarrer, tapez <b>PowerShell</b>, faites un clic droit dessus et choisissez <b>Exécuter en tant qu’administrateur</b>. Puis :</p><div class="code"><pre>wsl --install</pre></div><p><b>Redémarrez votre PC</b> quand il le demande. Ubuntu s’ouvre tout seul après le redémarrage (sinon, ouvrez <b>Ubuntu</b> depuis le menu Démarrer). Choisissez un nom d’utilisateur et un mot de passe pour Linux. Rien ne s’affiche pendant la saisie du mot de passe : c’est normal. Retenez-le, il vous servira pour <code>sudo</code>.</p></li>
+<li><h3>Installez le compilateur et QEMU</h3><p>Dans la fenêtre <b>Ubuntu</b> (pas PowerShell) :</p><div class="code"><pre>sudo apt update &amp;&amp; sudo apt install -y clang lld make git qemu-system-x86 qemu-system-gui</pre></div><p><b>clang</b> est le compilateur C, <b>lld</b> l’éditeur de liens qui assemble les morceaux, <b>qemu</b> le PC émulé. C’est exactement la commande qu’utilise notre test automatique : elle fonctionne.</p></li>
+<li><h3>Vérifiez que ça a marché</h3><div class="code"><pre>clang --version
+ld.lld --version
+qemu-system-i386 --version</pre></div></li>
+<li><h3>Récupérez le kit de départ et lancez-le</h3><p>Restez dans votre dossier personnel Linux (<code>cd ~</code>). Ne travaillez pas dans <code>/mnt/c/…</code> : c’est beaucoup plus lent.</p><div class="code"><pre>cd ~
+git clone https://github.com/alajemba-vik/build-your-own-os.git
+cp -R build-your-own-os/starter my-os
+cd my-os
+git init &amp;&amp; git add -A &amp;&amp; git commit -m &quot;Start from the starter&quot;
+make run</pre></div>
+<p>Sous Windows 11, une fenêtre QEMU s’ouvre avec <b>« Hello from my own operating system! »</b>. C’est votre OS. Pour l’arrêter, fermez la fenêtre ou appuyez sur <kbd>Ctrl</kbd> <kbd>C</kbd> dans Ubuntu.</p>
+<p><b>Pas de fenêtre (Windows 10) ?</b> Lancez <code>make run-text</code> : l’écran de votre OS s’affiche dans la fenêtre Ubuntu. Pour quitter : <kbd>Échap</kbd> puis <kbd>2</kbd>, tapez <code>quit</code>, <kbd>Entrée</kbd>.</p>
+<p>La première fois, Git peut vous demander qui vous êtes. Lancez ces commandes avec votre nom et votre e-mail, puis refaites le commit :</p>
+<div class="code"><pre>git config --global user.name &quot;Votre Nom&quot;\ngit config --global user.email &quot;vous@example.com&quot;</pre></div></li>
+<li><h3>Ouvrez-le avec votre IA</h3><p><b>VS Code</b> : installez-le sous Windows avec l’extension <b>WSL</b>, puis dans Ubuntu, dans <code>my-os</code>, lancez <code>code .</code>. Cursor fonctionne de la même façon. Les IA en terminal (Claude Code, Codex, Gemini CLI) s’installent et se lancent <b>dans Ubuntu</b>, dans le dossier <code>my-os</code>.</p>
+<div class="code"><pre>code .        # VS Code (avec Copilot) via WSL
+claude        # Claude Code, dans le dossier my-os</pre></div><p>Vous utilisez plutôt une IA de chat ? Ouvrez <code>my-os/AGENTS.md</code> (dans VS Code, avec <code>cat AGENTS.md</code>, ou <a href="https://github.com/alajemba-vik/build-your-own-os/blob/main/starter/AGENTS.md">sur GitHub</a>), copiez-le en entier et collez-le comme premier message.</p></li>
+</ol>
+<div class="note"><p><b>« Please enable the Virtual Machine Platform » ou erreur 0x80370102</b> : la virtualisation est désactivée. Activez <b>la virtualisation</b> (Intel VT-x / AMD-V / SVM) dans les réglages du BIOS de votre PC, puis relancez <code>wsl --install</code>.</p>
+<p><b>wsl --install n’affiche que l’aide</b> : WSL est déjà là. Lancez <code>wsl --install -d Ubuntu</code>, puis <code>wsl --update</code>.</p>
+<p>D’autres solutions sur la <a href="help.html">page d’aide</a>.</p></div>
+
+<label class="done"><input type="checkbox"> J’ai terminé cette partie</label>
+<nav class="pager" aria-label="Précédent et suivant"><a class="btn" href="setup-mac.html">← Sur Mac</a><a class="btn btn-primary" href="chapter-1-boot.html">Démarrer et dire bonjour →</a></nav>
+</main>
+</div>
+<footer>Réalisé par le <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> pour la séance du jeudi · <a href="https://github.com/alajemba-vik/build-your-own-os">Code sur GitHub</a> · Licence MIT · Une erreur ? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Dites-le-nous</a></footer>
+<script src="../assets/site.js?v=20261126a"></script>
+</body>
+</html>

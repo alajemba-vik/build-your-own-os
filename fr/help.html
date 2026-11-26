@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloqué ? Aide et glossaire · Construisez votre OS</title>
+<meta name="description" content="Les problèmes fréquents en construisant l’OS, comment demander de l’aide à votre IA, et un glossaire.">
+<meta property="og:title" content="Bloqué ? Aide et glossaire · Construisez votre OS">
+<meta property="og:description" content="Les problèmes fréquents en construisant l’OS, comment demander de l’aide à votre IA, et un glossaire.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/help.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/help.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=20261126a">
+</head>
+<body data-page="help" data-root="../">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapitres</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Construisez votre OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <a class="lang-switch" href="../help.html" hreflang="en" lang="en" title="Read in English" data-lang="en">EN</a>
+  <div class="os-switch" role="group" aria-label="Mon ordinateur">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapitres"><h2>Commencer</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Bienvenue<span class="tick"></span></a></li></ol><h2>Installer</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>Sur Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>Sur Windows<span class="tick"></span></a></li></ol><h2>Construire</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Démarrer et dire bonjour<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>Une vraie console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interruptions et plantages<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Minuteur et clavier<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>Un shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>La mémoire<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>Un bureau avec des fenêtres<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>À vous de jouer, et partagez-le<span class="tick"></span></a></li></ol><h2>Aide</h2><ol><li><a href="help.html" data-page="help" aria-current="page"><span class="num"></span>Bloqué ? Glossaire<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Aide</p>
+<h1>Bloqué ? <b>Commencez ici</b></h1>
+<p class="lede">Presque tous les problèmes sont dans le tableau ci-dessous. Sinon, posez la question à votre IA de la bonne façon, ou demandez en salle.</p>
+
+<h2>Demandez à votre IA <b>de la bonne façon</b></h2>
+<div class="prompt"><p>Je suis au chapitre [N] du tutoriel « Construisez votre OS » (x86 32 bits, multiboot, clang + ld.lld, QEMU, pas de bibliothèque C : voir AGENTS.md).
+J’ai modifié : [QUELS FICHIERS, QUOI].
+J’ai lancé : [LA COMMANDE].
+Je m’attendais à : [CE QUI DEVRAIT SE PASSER].
+À la place, je vois : [CE QUI SE PASSE, AVEC L’ERREUR COMPLÈTE OU LES DERNIÈRES LIGNES AFFICHÉES].
+Explique d’abord ce que veut dire l’erreur, puis donne-moi la plus petite correction possible.</p></div>
+<p>L’erreur complète compte : collez tout, à partir de la première ligne en rouge. Pour les plantages, collez l’écran de panique ou la sortie de la commande <code>-d int,cpu_reset</code> ci-dessous.</p>
+
+<h2>Problèmes <b>fréquents</b></h2>
+<table>
+<thead><tr><th>Vous voyez</th><th>Ce que cela veut dire et que faire</th></tr></thead>
+<tbody>
+<tr><td><code>clang: command not found</code> ou <code>ld.lld: No such file</code></td><td>Les outils ne sont pas installés ou pas trouvés. Mac : <code>brew install llvm lld</code>. Windows : lancez dans Ubuntu la ligne <code>sudo apt install …</code> de l’installation. Vérifiez que vous êtes bien dans la fenêtre Ubuntu, pas dans PowerShell.</td></tr>
+<tr><td>Des erreurs sur <code>i686-elf</code> ou <code>ld.lld</code> sur Mac</td><td>C’est probablement le clang d’Apple qui est utilisé. Lancez <code>brew install llvm lld</code> ; le Makefile trouvera alors tout seul la version de Homebrew.</td></tr>
+<tr><td><code>make: *** No targets specified</code> ou <code>No rule to make target</code></td><td>Vous n’êtes pas dans le dossier de votre OS. Lancez <code>cd ~/my-os</code>.</td></tr>
+<tr><td><code>undefined symbol: memset</code> / <code>memcpy</code></td><td>Le compilateur s’en sert pour les grosses copies. Écrivez-les dans <code>src/string.c</code> (chapitre 2).</td></tr>
+<tr><td><code>undefined symbol: __udivdi3</code> / <code>__umoddi3</code></td><td>Une division ou un <code>%</code> sur 64 bits. Utilisez un décalage, ou des nombres 32 bits.</td></tr>
+<tr><td><code>fatal error: 'stdio.h' file not found</code></td><td>Il n’y a pas de bibliothèque C dans un noyau. Utilisez votre propre <code>kprintf</code>. Seuls <code>stdint.h</code>, <code>stddef.h</code>, <code>stdbool.h</code> et <code>stdarg.h</code> existent.</td></tr>
+<tr><td>QEMU affiche <code>Error loading uncompressed kernel without PVH ELF Note</code></td><td>QEMU n’a pas trouvé l’en-tête multiboot. Vérifiez que <code>.multiboot</code> vient en premier dans <code>linker.ld</code>, que le nombre magique est juste et que vous avez compilé pour <code>i686</code> (32 bits).</td></tr>
+<tr><td>QEMU s’ouvre et se ferme aussitôt</td><td>Une triple faute (un plantage pendant le traitement d’un plantage). Voir plus bas.</td></tr>
+<tr><td>Taper ne fait rien</td><td>Cliquez d’abord dans la fenêtre QEMU. Puis vérifiez <code>sti</code>, que l’IRQ 1 est démasquée, et l’End Of Interrupt (chapitre 4).</td></tr>
+<tr><td>Les lettres ne sont pas à leur place</td><td>Votre clavier est en AZERTY et la table est en QWERTY. C’est normal ; voir le défi du chapitre 4.</td></tr>
+<tr><td>Pas de fenêtre QEMU sous Windows</td><td>Windows 10 ne sait pas afficher les fenêtres des applications Linux. Utilisez <code>make run-text</code>. Sous Windows 11, lancez <code>wsl --update</code> dans PowerShell, puis <code>wsl --shutdown</code>, et rouvrez Ubuntu.</td></tr>
+<tr><td>Coincé dans <code>make run-text</code></td><td>Appuyez sur <kbd>Échap</kbd> puis <kbd>2</kbd>, tapez <code>quit</code>, <kbd>Entrée</kbd>. Ou fermez le terminal.</td></tr>
+<tr><td>La souris est bloquée dans la fenêtre QEMU</td><td>Appuyez sur <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>G</kbd> (Mac : <kbd>Ctrl</kbd> <kbd>⌥</kbd> <kbd>G</kbd>).</td></tr>
+<tr><td>Ça marchait avant et maintenant c’est cassé</td><td><code>git diff</code> montre ce qui a changé depuis votre dernier enregistrement. <code>git restore .</code> y revient (et jette les modifications).</td></tr>
+</tbody></table>
+
+<h3>Voir pourquoi QEMU a planté</h3>
+<div class="code"><pre>qemu-system-i386 -kernel build/kernel.elf -no-reboot -d int,cpu_reset 2&gt;&amp;1 | tail -40</pre></div>
+<p>Les dernières lignes montrent les interruptions juste avant le redémarrage. <code>v=0d</code> est une faute de protection générale, <code>v=0e</code> un défaut de page, <code>v=08</code> une double faute. Collez-les à votre IA avec les fichiers que vous avez modifiés.</p>
+<h3>Trouver la ligne qui a planté</h3>
+<p>Prenez l’<code>eip</code> de l’écran de panique et demandez aux outils dans quelle fonction il se trouve :</p>
+<div class="code only-mac"><pre>&quot;$(brew --prefix llvm)/bin/llvm-addr2line&quot; -f -e build/kernel.elf 0x00101234</pre></div>
+<div class="code only-win"><pre>addr2line -f -e build/kernel.elf 0x00101234     # s’il manque : sudo apt install binutils</pre></div>
+
+<h2><b>Glossaire</b></h2>
+<table><tbody>
+<tr><th>Noyau (kernel)</th><td>Le cœur d’un OS : le code qui contrôle le matériel et fait tourner tout le reste.</td></tr>
+<tr><th>Chargeur d’amorçage</th><td>Le petit programme (bootloader) qui charge le noyau en mémoire et le démarre. Le nôtre est intégré à QEMU.</td></tr>
+<tr><th>Multiboot</th><td>Une façon standard pour un chargeur de trouver et démarrer un noyau : un nombre magique et quelques options.</td></tr>
+<tr><th>QEMU</th><td>Un programme qui se fait passer pour un PC entier, pour que votre OS tourne dans une fenêtre.</td></tr>
+<tr><th>Freestanding</th><td>Du code C sans système d’exploitation ni bibliothèque C en dessous.</td></tr>
+<tr><th>Script de l’éditeur de liens</th><td>Indique à l’éditeur de liens (linker) où chaque partie du programme va en mémoire.</td></tr>
+<tr><th>Pile (stack)</th><td>La mémoire où le C garde les variables locales et les adresses de retour. Elle grandit vers le bas.</td></tr>
+<tr><th>Mode texte VGA</th><td>L’écran vu comme 80 × 25 caractères en mémoire, à <code>0xB8000</code>.</td></tr>
+<tr><th>Port d’E/S</th><td>Un numéro pour parler à un périphérique avec <code>inb</code>/<code>outb</code>, distinct des adresses mémoire.</td></tr>
+<tr><th>Port série</th><td>COM1 : envoie du texte octet par octet. QEMU le relie à votre terminal.</td></tr>
+<tr><th>Interruption</th><td>Un signal qui fait s’arrêter le processeur pour exécuter un gestionnaire, puis continuer.</td></tr>
+<tr><th>Exception</th><td>Une interruption levée par le processeur parce que le code a fait une erreur (0–31).</td></tr>
+<tr><th>IRQ</th><td>Une demande d’interruption venant d’un périphérique : 0 est le minuteur, 1 le clavier.</td></tr>
+<tr><th>GDT</th><td>Global Descriptor Table : les segments de mémoire. Nous en définissons deux qui couvrent tout.</td></tr>
+<tr><th>IDT</th><td>Interrupt Descriptor Table : quel gestionnaire s’exécute pour chaque interruption.</td></tr>
+<tr><th>PIC</th><td>La puce qui rassemble les IRQ du matériel et les transmet au processeur.</td></tr>
+<tr><th>PIT</th><td>La puce minuteur qui bat au rythme que nous choisissons.</td></tr>
+<tr><th>Scancode</th><td>Le numéro qu’envoie un clavier pour la position d’une touche.</td></tr>
+<tr><th>Page</th><td>Un bloc de 4 Kio de mémoire, l’unité que l’OS distribue.</td></tr>
+<tr><th>Allocateur par bitmap</th><td>Garde un bit par page pour savoir lesquelles sont libres.</td></tr>
+<tr><th>Tas / kmalloc</th><td>D’où viennent les petits morceaux de mémoire quand le noyau en demande.</td></tr>
+<tr><th>Triple faute</th><td>Un plantage pendant le traitement d’un plantage pendant le traitement d’un plantage. Le processeur redémarre.</td></tr>
+<tr><th>Vibe coding</th><td>Construire en décrivant ce que l’on veut à une IA, en exécutant le résultat et en la guidant.</td></tr>
+</tbody></table>
+
+
+<nav class="pager" aria-label="Précédent et suivant"><a class="btn" href="chapter-8-make-it-yours.html">← À vous de jouer, et partagez-le</a></nav>
+</main>
+</div>
+<footer>Réalisé par le <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> pour la séance du jeudi · <a href="https://github.com/alajemba-vik/build-your-own-os">Code sur GitHub</a> · Licence MIT · Une erreur ? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Dites-le-nous</a></footer>
+<script src="../assets/site.js?v=20261126a"></script>
+</body>
+</html>

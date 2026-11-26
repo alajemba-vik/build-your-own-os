@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapitre 3 : Interruptions et plantages · Construisez votre OS</title>
+<meta name="description" content="La GDT, l’IDT, les stubs d’interruption en assembleur et un écran de kernel panic.">
+<meta property="og:title" content="Chapitre 3 : Interruptions et plantages · Construisez votre OS">
+<meta property="og:description" content="La GDT, l’IDT, les stubs d’interruption en assembleur et un écran de kernel panic.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/chapter-3-interrupts.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/chapter-3-interrupts.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=20261126a">
+</head>
+<body data-page="ch3" data-root="../">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapitres</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Construisez votre OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <a class="lang-switch" href="../chapter-3-interrupts.html" hreflang="en" lang="en" title="Read in English" data-lang="en">EN</a>
+  <div class="os-switch" role="group" aria-label="Mon ordinateur">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapitres"><h2>Commencer</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Bienvenue<span class="tick"></span></a></li></ol><h2>Installer</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>Sur Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>Sur Windows<span class="tick"></span></a></li></ol><h2>Construire</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Démarrer et dire bonjour<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>Une vraie console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3" aria-current="page"><span class="num">3</span>Interruptions et plantages<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Minuteur et clavier<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>Un shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>La mémoire<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>Un bureau avec des fenêtres<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8"><span class="num">8</span>À vous de jouer, et partagez-le<span class="tick"></span></a></li></ol><h2>Aide</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Bloqué ? Glossaire<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Chapitre 3 · environ 40 minutes</p>
+<h1>Interruptions <b>et plantages</b></h1>
+<p class="lede">Pour l’instant, si votre code fait une erreur, le PC redémarre sans rien dire. Vous apprenez au processeur où aller quand quelque chose se produit, et vous obtenez un vrai écran rouge de <b>kernel panic</b> qui dit ce qui s’est mal passé.</p>
+
+<h2>L’<b>idée</b></h2>
+<ul>
+<li>Une <b>interruption</b> fait lâcher au processeur ce qu’il fait pour exécuter un gestionnaire (handler), puis y revenir. Certaines viennent du processeur lui-même quand le code se trompe (les <b>exceptions</b> : division par zéro, instruction invalide, défaut de page… numéros 0 à 31). D’autres viennent du matériel, comme le clavier (chapitre 4).</li>
+<li>L’<b>IDT</b> (Interrupt Descriptor Table) est une liste de 256 adresses de gestionnaires. On la charge avec l’instruction <code>lidt</code>.</li>
+<li>Avant cela, le processeur veut une <b>GDT</b> (Global Descriptor Table) : les anciennes puces x86 découpaient la mémoire en segments. Nous créons deux segments qui couvrent tous les deux les 4 Gio (code en <code>0x08</code>, données en <code>0x10</code>), et nous n’y pensons plus jamais.</li>
+<li>Les gestionnaires commencent en assembleur (des <b>stubs</b>) : ils sauvegardent tous les registres, appellent une fonction C avec un pointeur vers eux, puis restaurent tout et exécutent <code>iret</code>. Certaines exceptions empilent un code d’erreur et d’autres non ; les stubs empilent un faux 0 pour que toutes les interruptions se ressemblent.</li>
+<li>Si un plantage survient pendant le traitement d’un plantage, le processeur abandonne : c’est une <b>triple faute</b> (triple fault). QEMU s’arrête (nous utilisons <code>-no-reboot</code>).</li>
+</ul>
+
+<h2>À <b>vous</b></h2>
+<ol class="steps">
+<li><h3>GDT, IDT et écran de panique</h3><div class="prompt"><p>Chapitre 3. Ajoute une GDT plate avec trois entrées (nulle, code noyau 0x08, données noyau 0x10, couvrant toutes deux 4 Gio) dans src/gdt.c, chargée par une fonction assembleur gdt_flush dans src/cpu.S qui recharge tous les registres de segment et fait un saut lointain (far jump) pour recharger CS.</p><p>Puis une IDT dans src/idt.c avec 48 entrées qui pointent vers des stubs assembleur isr0..isr47 dans cpu.S. Chaque stub empile un faux code d’erreur 0 quand le processeur n’en empile pas (il en empile un pour 8, 10-14, 17, 21, 29, 30), empile son numéro, et saute vers un stub commun qui sauvegarde tous les registres (pushal et les registres de segment), charge le segment de données du noyau et appelle isr_handler(struct regs *r) en C. Mets une table des 48 adresses de stubs dans cpu.S. Définis struct regs dans src/cpu.h, exactement dans l’ordre où les valeurs sont sur la pile.</p><p>Reprogramme aussi le PIC pour que les IRQ matérielles 0-15 utilisent les interruptions 32-47, mais garde-les toutes masquées pour l’instant.</p><p>Pour les exceptions 0-31, affiche un écran rouge KERNEL PANIC avec le nom de l’exception, le code d’erreur, eip et les registres, puis arrête le processeur pour toujours. Dans kernel_main, affiche des lignes « [ OK ] » après chaque étape.</p></div>
+<div class="code"><pre>make run</pre></div></li>
+<li><h3>Faites-le planter exprès</h3><div class="prompt"><p>Ajoute un test temporaire à la fin de kernel_main qui exécute l’instruction ud2 (assembleur en ligne), pour que je voie l’écran de panique. Explique ce que veut dire « Invalid opcode ».</p></div><p>Vous devez voir l’écran rouge avec <b>Invalid opcode</b>. Essayez ensuite une division par zéro (demandez à l’IA comment en écrire une que le compilateur ne supprime pas), puis supprimez le test.</p></li>
+<li><h3>Comprenez-le</h3><p>Demandez à votre IA : Qu’est-ce que le processeur empile exactement quand une interruption arrive ? Pourquoi <code>struct regs</code> doit-elle correspondre exactement à ce qu’empile le stub ? Qu’est-ce que <code>iret</code> ? Pourquoi faut-il reprogrammer le PIC ?</p></li>
+</ol>
+
+<h2>Ça marche <b>quand</b></h2>
+<ul class="checks"><li>Le démarrage affiche <code>[ OK ] GDT</code> et <code>[ OK ] IDT</code>.</li><li><code>ud2</code> donne un écran de panique rouge avec « Invalid opcode », et QEMU reste ouvert.</li></ul>
+<div class="note"><p><b>QEMU se ferme dès qu’il démarre</b> : c’est une triple faute. Lancez ceci et collez-en la fin à votre IA : on y voit les dernières interruptions et pourquoi le processeur a redémarré :</p>
+<div class="code"><pre>qemu-system-i386 -kernel build/kernel.elf -no-reboot -d int,cpu_reset 2&gt;&amp;1 | tail -40</pre></div>
+<p>Les causes habituelles : un stub avec le mauvais réglage de code d’erreur, <code>struct regs</code> dans le mauvais ordre, un <code>__attribute__((packed))</code> oublié sur les structures des tables, ou le saut lointain dans <code>gdt_flush</code>.</p></div>
+<details class="ref" data-files="os/src/cpu.S os/src/cpu.h os/src/gdt.c os/src/idt.c os/src/panic.c"><summary>Jeter un œil à la solution de référence (à ouvrir seulement si vous êtes bloqué)</summary><p>Voici le code de l’OS terminé, dans <a href="https://github.com/alajemba-vik/build-your-own-os/tree/main/os">os/</a>. Le vôtre n’a pas besoin d’être identique : s’il fonctionne et que vous le comprenez, il est juste.</p></details>
+<h2>Enregistrez <b>votre progression</b></h2>
+<p>Prenez une photo de votre code avec Git, pour pouvoir revenir en arrière si une étape suivante casse quelque chose :</p>
+<div class="code"><pre>git add -A &amp;&amp; git commit -m &quot;Chapitre 3 : GDT, IDT et écran de kernel panic&quot;</pre></div>
+
+<label class="done"><input type="checkbox"> J’ai terminé cette partie</label>
+<nav class="pager" aria-label="Précédent et suivant"><a class="btn" href="chapter-2-console.html">← Une vraie console</a><a class="btn btn-primary" href="chapter-4-keyboard.html">Minuteur et clavier →</a></nav>
+</main>
+</div>
+<footer>Réalisé par le <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> pour la séance du jeudi · <a href="https://github.com/alajemba-vik/build-your-own-os">Code sur GitHub</a> · Licence MIT · Une erreur ? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Dites-le-nous</a></footer>
+<script src="../assets/site.js?v=20261126a"></script>
+</body>
+</html>

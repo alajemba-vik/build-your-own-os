@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapitre 8 : À vous de jouer, et partagez-le · Construisez votre OS</title>
+<meta name="description" content="Des idées pour enrichir votre OS, des thèmes au multitâche, et comment le partager.">
+<meta property="og:title" content="Chapitre 8 : À vous de jouer, et partagez-le · Construisez votre OS">
+<meta property="og:description" content="Des idées pour enrichir votre OS, des thèmes au multitâche, et comment le partager.">
+<link rel="alternate" hreflang="en" href="https://alajemba-vik.github.io/build-your-own-os/chapter-8-make-it-yours.html">
+<link rel="alternate" hreflang="fr" href="https://alajemba-vik.github.io/build-your-own-os/fr/chapter-8-make-it-yours.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Figtree:wght@400;600;700;800&family=Google+Sans+Code:wght@400;600&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=20261126a">
+</head>
+<body data-page="ch8" data-root="../">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top">
+  <button class="btn menu-btn" type="button" aria-expanded="false" aria-controls="side">Chapitres</button>
+  <a class="brand" href="index.html"><span class="chip-os">OS</span> Construisez votre OS <span class="long">· aivancity Tech Club</span></a>
+  <span class="spacer"></span>
+  <a class="lang-switch" href="../chapter-8-make-it-yours.html" hreflang="en" lang="en" title="Read in English" data-lang="en">EN</a>
+  <div class="os-switch" role="group" aria-label="Mon ordinateur">
+    <button type="button" data-os="mac" aria-pressed="false">macOS</button>
+    <button type="button" data-os="win" aria-pressed="false">Windows</button>
+  </div>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Chapitres"><h2>Commencer</h2><ol><li><a href="index.html" data-page="index"><span class="num"></span>Bienvenue<span class="tick"></span></a></li></ol><h2>Installer</h2><ol><li><a href="setup-mac.html" data-page="setup-mac"><span class="num"></span>Sur Mac<span class="tick"></span></a></li><li><a href="setup-windows.html" data-page="setup-windows"><span class="num"></span>Sur Windows<span class="tick"></span></a></li></ol><h2>Construire</h2><ol><li><a href="chapter-1-boot.html" data-page="ch1"><span class="num">1</span>Démarrer et dire bonjour<span class="tick"></span></a></li><li><a href="chapter-2-console.html" data-page="ch2"><span class="num">2</span>Une vraie console<span class="tick"></span></a></li><li><a href="chapter-3-interrupts.html" data-page="ch3"><span class="num">3</span>Interruptions et plantages<span class="tick"></span></a></li><li><a href="chapter-4-keyboard.html" data-page="ch4"><span class="num">4</span>Minuteur et clavier<span class="tick"></span></a></li><li><a href="chapter-5-shell.html" data-page="ch5"><span class="num">5</span>Un shell<span class="tick"></span></a></li><li><a href="chapter-6-memory.html" data-page="ch6"><span class="num">6</span>La mémoire<span class="tick"></span></a></li><li><a href="chapter-7-desktop.html" data-page="ch7"><span class="num">7</span>Un bureau avec des fenêtres<span class="tick"></span></a></li><li><a href="chapter-8-make-it-yours.html" data-page="ch8" aria-current="page"><span class="num">8</span>À vous de jouer, et partagez-le<span class="tick"></span></a></li></ol><h2>Aide</h2><ol><li><a href="help.html" data-page="help"><span class="num"></span>Bloqué ? Glossaire<span class="tick"></span></a></li></ol></nav>
+<main id="main">
+
+<p class="eyebrow">Chapitre 8 · autant que vous voulez</p>
+<h1>À vous de jouer, <b>et partagez-le</b></h1>
+<p class="lede">Vous avez un système d’exploitation qui fonctionne : un démarrage, des pilotes, un écran de plantage, un shell, un allocateur de mémoire et un bureau. Donnez-lui un nom, ajoutez la fonction dont vous rêvez, et montrez-le au club.</p>
+
+<h2>Donnez-lui <b>un nom</b></h2>
+<p>Changez <code>OS_NAME</code> dans <code>src/os.h</code>, et demandez à votre IA un nouveau logo en ASCII art avec ce nom.</p>
+
+<h2>Des idées, <b>de la plus facile à la plus dure</b></h2>
+<table>
+<thead><tr><th>Idée</th><th>Ce que vous apprenez</th></tr></thead>
+<tbody>
+<tr><td><b>Des thèmes</b> : une commande <code>theme</code> qui recolore le shell et le bureau</td><td>Les couleurs VGA</td></tr>
+<tr><td><b>La vraie date et l’heure</b>, lues dans l’horloge du PC, dans la barre du haut</td><td>La RTC du CMOS (ports 0x70/0x71)</td></tr>
+<tr><td><b>Un clavier AZERTY</b> et une commande <code>layout</code></td><td>Les scancodes</td></tr>
+<tr><td><b>Un OS en français</b> : traduisez les messages et les commandes, avec les accents de la code page 437</td><td>Les jeux de caractères</td></tr>
+<tr><td><b>Un jeu</b> : snake, pong ou 2048 dans une fenêtre</td><td>Boucle de jeu, minuteur, hasard</td></tr>
+<tr><td><b>Un bloc-notes</b> qui garde des notes tant que l’OS tourne</td><td><code>kmalloc</code>, chaînes de caractères</td></tr>
+<tr><td><b>Du son</b> : un bip au démarrage avec le haut-parleur du PC (lancez QEMU avec <code>-audiodev</code> et <code>-machine pcspk-audiodev=…</code>)</td><td>Le canal 2 du PIT</td></tr>
+<tr><td><b>Un meilleur tas</b> avec <code>kfree</code></td><td>Listes de blocs libres, fragmentation</td></tr>
+<tr><td><b>La pagination</b> : donnez au noyau sa propre vue de la mémoire</td><td>Tables de pages, CR3, défauts de page</td></tr>
+<tr><td><b>Le multitâche</b> : deux tâches qui se relaient sur le minuteur</td><td>Changements de contexte, ordonnancement</td></tr>
+<tr><td><b>Le mode graphique</b> : des pixels au lieu de caractères</td><td>Framebuffers (chargeurs comme GRUB ou Limine)</td></tr>
+</tbody></table>
+<div class="prompt"><p>J’ai terminé les 8 chapitres du tutoriel. Je veux ajouter : [VOTRE IDÉE]. Explique d’abord comment cela fonctionne sur le vrai matériel d’un PC et quelles parties de mon OS doivent changer. Puis découpe le travail en 3 à 5 petites étapes que je peux tester une par une, et ne fais que la première.</p></div>
+<p>Quand vous serez allé plus loin que ce tutoriel, le <a href="https://wiki.osdev.org/Expanded_Main_Page">wiki OSDev</a> (en anglais) est l’endroit où les vrais créateurs d’OS amateurs apprennent. Des projets comme SerenityOS ont commencé exactement là où vous en êtes.</p>
+
+<h2>Mettez-le <b>sur GitHub</b></h2>
+<p>Avec la CLI GitHub (<span class="only-mac"><code>brew install gh</code></span><span class="only-win"><code>sudo apt install gh</code></span>, puis <code>gh auth login</code>), dans votre dossier <code>my-os</code> :</p>
+<div class="code"><pre>gh repo create my-os --public --source . --push</pre></div>
+<p>Ou créez un dépôt vide sur github.com et suivez ses étapes « push an existing repository ». Puis faites une capture d’écran de votre bureau et ajoutez-la à votre <code>README.md</code>.</p>
+
+<h2>Montrez-le <b>au club</b></h2>
+<ul>
+<li>Apportez-le à une séance du jeudi et montrez-le. Deux minutes suffisent : ce que vous avez ajouté, et ce qui a été difficile.</li>
+<li>Postez votre capture d’écran et le lien de votre dépôt dans le groupe WhatsApp du club.</li>
+<li>Vous voulez le voir sur le site du club ? Demandez à un organisateur de l’ajouter à la <a href="https://aivancity-tech-club.github.io/showcase">vitrine des applications des étudiants</a>.</li>
+</ul>
+
+<label class="done"><input type="checkbox"> J’ai terminé cette partie</label>
+<nav class="pager" aria-label="Précédent et suivant"><a class="btn" href="chapter-7-desktop.html">← Un bureau avec des fenêtres</a><a class="btn btn-primary" href="help.html">Bloqué ? Glossaire →</a></nav>
+</main>
+</div>
+<footer>Réalisé par le <a href="https://aivancity-tech-club.github.io/">aivancity Tech Club</a> pour la séance du jeudi · <a href="https://github.com/alajemba-vik/build-your-own-os">Code sur GitHub</a> · Licence MIT · Une erreur ? <a href="https://github.com/alajemba-vik/build-your-own-os/issues">Dites-le-nous</a></footer>
+<script src="../assets/site.js?v=20261126a"></script>
+</body>
+</html>
